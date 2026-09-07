@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Best in Q8 — دوري فانتازي الأصدقاء</title>
+<meta name="league-slug" content="diwan" />
+<meta name="ext-resource-dependency" content="./data/q8/fpl-data.json" data-resource-id="fplData" />
+<meta name="ext-resource-dependency" content="./data/q8/league.json" data-resource-id="leagueData" />
+<template id="__bundler_thumbnail" data-bg-color="#38003C">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#38003C"/>
+    <rect x="0" y="0" width="1200" height="28" fill="#E90052"/>
+    <rect x="150" y="250" width="380" height="300" fill="#00FF85"/>
+    <rect x="570" y="250" width="180" height="300" fill="#04F5FF"/>
+    <rect x="790" y="250" width="260" height="300" fill="#E90052"/>
+    <text x="600" y="700" font-family="Oswald,sans-serif" font-size="120" font-weight="700" fill="#ffffff" text-anchor="middle">Q8</text>
+  </svg>
+</template>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#38003C;color:#fff;font-family:Tajawal,'Segoe UI',sans-serif;text-align:right}
+  body{-webkit-font-smoothing:antialiased}
+  ::selection{background:#00FF85;color:#38003C}
+  .num{font-family:Oswald,sans-serif}
+  bdi{unicode-bidi:isolate}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+  .nav{position:sticky;top:0;z-index:20;background:rgba(42,0,46,.94);backdrop-filter:blur(10px);border-bottom:3px solid #E90052}
+  .nav .wrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-top:14px;padding-bottom:14px}
+  .logo{display:flex;align-items:center;gap:10px;cursor:pointer;direction:ltr}
+  .logo b{font-family:Oswald,sans-serif;font-size:24px;font-weight:700;white-space:nowrap}
+  .dot{width:14px;height:14px;background:#00FF85}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-inline-start:auto}
+  .tab{font-size:17px;font-weight:700;padding:8px 16px;background:rgba(255,255,255,.08);cursor:pointer;border:0;color:#fff;font-family:inherit}
+  .tab:hover{background:#E90052}
+  .tab.on{background:#E90052}
+  h1.hero{margin:0 0 24px;font-family:Oswald,sans-serif;font-size:clamp(52px,12vw,124px);line-height:.92;font-weight:700;letter-spacing:-2px;direction:ltr;text-align:right}
+  h2.sec{margin:0 0 6px;font-size:clamp(30px,5vw,46px);font-weight:900;line-height:1}
+  .eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+  .eyebrow div:last-child{flex:1;height:2px;background:rgba(255,255,255,.15)}
+  .lede{margin:0 0 36px;font-size:clamp(18px,2.6vw,28px);line-height:1.5;font-weight:500;color:rgba(255,255,255,.78);max-width:720px;text-wrap:pretty}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .stat{padding:20px}
+  .stat .n{font-family:Oswald,sans-serif;font-size:clamp(40px,6vw,60px);font-weight:700;line-height:1}
+  .stat .l{font-size:18px;font-weight:700;margin-top:6px}
+  .hd{border-bottom:5px solid #00FF85;padding-bottom:14px;margin-bottom:22px}
+  .hd .s{font-size:18px;font-weight:700;color:#00FF85}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+  .awards{display:flex;flex-direction:column;gap:10px}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .pair.solo{grid-template-columns:1fr}
+  .pair>*{min-width:0}
+  @media (max-width:720px){.pair{grid-template-columns:1fr}}
+  .champ{display:flex;flex-wrap:wrap;align-items:center;gap:12px;background:#46124F;border-right:6px solid #00FF85;padding:13px 16px;cursor:pointer}
+  .champ:hover{background:#5A1A67}
+  .recs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+  .rec{padding:24px}
+  .rec .k{font-size:18px;font-weight:700;margin-bottom:12px}
+  .rec .row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;margin-bottom:10px}
+  .rec .who{font-size:26px;font-weight:900}
+  .rec .big{font-family:Oswald,sans-serif;font-size:56px;font-weight:700;line-height:.9}
+  .thead,.trow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:11px 14px}
+  .thead{background:#2A002E;font-size:15px;font-weight:800;color:rgba(255,255,255,.7);border-bottom:3px solid #E90052}
+  .trow{background:#431350;cursor:pointer;border-right:6px solid rgba(255,255,255,.14)}
+  .trow:hover{background:#55195F}
+  .c-rank{flex:0 0 40px;font-family:Oswald,sans-serif;font-size:22px;font-weight:700}
+  .c-name{flex:1 1 140px;min-width:0;overflow:hidden}
+  .tcard{padding:20px;display:flex;flex-direction:column;gap:6px}
+  .tpairs{display:grid;grid-template-columns:minmax(0,1fr) 32px 20px minmax(0,1fr) 32px;gap:6px 8px;align-items:center;margin-top:6px}
+  .tpair{display:contents}
+  .tpair .nm{font-size:17px;font-weight:800;direction:ltr;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tpair .out{text-decoration:line-through;opacity:.6}
+  .tpair .arw{font-size:20px;opacity:.75;text-align:center}
+  .tpair .p{font-family:Oswald,sans-serif;font-size:15px;font-weight:700;padding:2px 0;text-align:center}
+  @media (max-width:560px){
+    .tpairs{grid-template-columns:minmax(0,1fr) 28px 18px minmax(0,1fr) 28px;gap:5px 6px}
+    .tpair .nm{font-size:15px}
+  }
+  .ttot{display:flex;gap:16px;flex-wrap:wrap;font-size:15px;font-weight:700;opacity:.75;margin-top:6px}
+  .ttot .num{font-size:17px}
+  .thit{font-size:14px;font-weight:800;opacity:.75}
+  a.gw-lnk{display:block;margin-top:3px;font-size:14px;font-weight:800;color:#04F5FF;text-decoration:none;overflow:hidden;text-overflow:ellipsis}
+  a.gw-lnk:hover{text-decoration:underline}
+  .c-name b{font-size:19px;font-weight:800;line-height:1.25;display:block}
+  .c-name span{font-size:15px;font-weight:500;color:rgba(255,255,255,.55)}
+  .c-pts{flex:0 0 84px;font-family:Oswald,sans-serif;font-size:21px;font-weight:600}
+  .c-sub{flex:0 0 92px;font-family:Oswald,sans-serif;font-size:17px;font-weight:500;color:rgba(255,255,255,.6)}
+  .rows{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+  .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+  .scard{background:#46124F;border-bottom:5px solid #00FF85;padding:18px;cursor:pointer}
+  .scard:hover{background:#5A1A67}
+  .mcard{background:#46124F;padding:16px;cursor:pointer;border-right:6px solid rgba(255,255,255,.14)}
+  .mcard:hover{background:#5A1A67}
+  .back{display:inline-block;font-size:16px;font-weight:700;color:#04F5FF;margin-bottom:18px;cursor:pointer}
+  .btn{font-size:16px;font-weight:700;padding:10px 16px;background:rgba(255,255,255,.1);cursor:pointer;border:0;color:#fff;font-family:inherit}
+  .btn:hover{background:#E90052}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:30px}
+  .tile{padding:18px;background:#46124F;border:2px solid rgba(255,255,255,.18)}
+  .tile .n{font-family:Oswald,sans-serif;font-size:40px;font-weight:700;line-height:1}
+  .tile .l{font-size:16px;font-weight:700;margin-top:4px}
+  select{width:100%;background:#46124F;color:#fff;padding:12px 14px;font-family:Tajawal,sans-serif;font-size:19px;font-weight:800;direction:rtl}
+  .cmp-hd{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;column-gap:12px;background:#2A002E;padding:12px 14px;border-bottom:3px solid #04F5FF}
+  .cmp-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;column-gap:12px;background:#431350;padding:12px 14px}
+  .foot{border-top:3px solid #E90052;background:#2A002E;margin-top:40px}
+  .foot .wrap{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-top:22px;padding-bottom:22px}
+  .bars{display:flex;gap:8px}
+  .bars i{width:24px;height:9px;display:block}
+  section.pad{padding-top:clamp(32px,5vw,60px)}
+
+  @media (max-width:560px){
+    .nav .wrap{gap:10px}
+    .thead,.trow{flex-wrap:nowrap;gap:8px;padding:11px 10px}
+    .thead{font-size:13px}
+    .thead>div:nth-child(1){flex:0 0 24px !important}
+    .thead>div:nth-child(2){flex:1 1 40px !important}
+    .thead>div:nth-child(3){flex:0 0 56px !important}
+    .thead>div:nth-child(4){flex:0 0 70px !important}
+    .c-rank{flex:0 0 24px !important;font-size:19px}
+    .c-name{flex:1 1 40px !important}
+    .c-name b{font-size:17px}
+    .c-name span{font-size:13px}
+    .c-pts{flex:0 0 56px !important;font-size:18px}
+    .c-sub{flex:0 0 70px !important;font-size:15px}
+    .gw-mv{display:none !important}
+
+    .thead-m>div:nth-child(1){flex:0 0 46px !important}
+    .thead-m>div:nth-child(2){flex:0 0 26px !important}
+    .thead-m>div:nth-child(3){flex:1 1 40px !important}
+    .trow-m>div:nth-child(1){flex:0 0 46px !important;font-size:17px !important}
+    .trow-m>div:nth-child(2){flex:0 0 26px !important;font-size:19px !important}
+    .trow-m>div:nth-child(3){flex:1 1 40px !important;font-size:17px !important}
+  }
+</style>
+</head>
+<body>
+<div class="nav"><div class="wrap">
+  <div class="logo" data-go="home"><div class="dot"></div><b id="brandNav"></b></div>
+  <div class="tabs">
+    <button class="tab" data-go="home">الرئيسية</button>
+    <button class="tab" data-go="gw">الموسم الحالي</button>
+    <button class="tab" data-go="archive">الأرشيف</button>
+    <button class="tab" data-go="seasons">المواسم</button>
+    <button class="tab" data-go="managers">المشتركين</button>
+    <button class="tab" data-go="compare">مقارنة</button>
+  </div>
+</div></div>
+
+<div id="app"></div>
+
+<div class="foot"><div class="wrap">
+  <div id="brandFoot" style="font-size:17px;font-weight:700;color:rgba(255,255,255,.55);white-space:nowrap"></div>
+  <div id="lastUpdated" style="font-size:15px;font-weight:700;color:rgba(255,255,255,.42)"></div>
+  <div class="bars"><i style="background:#E90052"></i><i style="background:#00FF85"></i><i style="background:#04F5FF"></i></div>
+</div></div>
+
+<script>
+var AR = {}, ROWS = [], META = {};
+
+
+
+var GW_STATS = [], GW_HL = [], GW_POP = {}, SEASON_SUMMARY = [], GENERATED_AT = null, LIVE_GW = null;
+
+var CHIP_AR = {bboost:'بنش بوست', '3xc':'كابتن ثلاثي', wildcard:'وايلد كارد', freehit:'فري هت'};
+var GWS = [], LAST_GW = null;
+function computeGws() {
+  GWS = [];
+  GW_STATS.forEach(function (r) { if (GWS.indexOf(r[0]) < 0) GWS.push(r[0]); });
+  GWS.sort(function (a, b) { return a - b; });
+  LAST_GW = GWS[GWS.length - 1];
+}
+var nameAr = function (en) { return AR[en] || en; };
+var gwRows = function (g) {
+  return GW_STATS.filter(function (r) { return r[0] === g; })
+    .sort(function (a, b) { return a[12] - b[12] || b[3] - a[3]; });
+};
+var gwHl = function (g) { var o = null; GW_HL.forEach(function (h) { if (h.gameweek === g) o = h; }); return o || {}; };
+
+var awardCard = function (o) {
+  if (!o.who && !o.who2) return '';
+  return '<div style="background:' + o.bg + ';color:' + (o.fg || '#fff') + ';padding:20px;display:flex;flex-direction:column;gap:6px' + (o.border ? ';border:2px solid ' + o.border : '') + '">' +
+    '<div style="font-size:16px;font-weight:800;' + (o.kc ? 'color:' + o.kc : 'opacity:.75') + '">' + o.k + '</div>' +
+    '<div style="font-size:clamp(21px,3vw,26px);font-weight:900;line-height:1.15">' + esc(o.who) + '</div>' +
+    (o.sub ? '<div style="font-size:16px;font-weight:600;opacity:.8;line-height:1.4">' + o.sub + '</div>' : '') +
+    (o.big !== undefined ? '<div class="num" style="font-size:44px;font-weight:700;line-height:1;margin-top:2px">' + o.big + '</div>' : '') +
+    '</div>';
+};
+
+function tChips(list) {
+  return String(list || '').split(',').map(function (x) { return x.trim(); }).filter(Boolean)
+    .map(function (x) { return '<span class="tchip">' + esc(x) + '</span>'; }).join('');
+}
+function signed(n) { return (n > 0 ? '+' : '') + n; }
+
+function moveCard(o) {
+  if (!o.manager) return '';
+  var pin = String(o.pIn || ''), pout = String(o.pOut || '');
+  if (pin.indexOf(',') >= 0 || pout.indexOf(',') >= 0) return '';
+  var hit = ((+o.ptsIn) - (+o.ptsOut)) - (+o.net);
+  return '<div style="background:' + o.bg + ';' + (o.fg ? 'color:' + o.fg + ';' : '') + (o.border ? 'border:2px solid ' + o.border + ';' : '') + 'padding:20px;display:flex;flex-direction:column;gap:6px">' +
+    '<div style="font-size:16px;font-weight:800;' + (o.kc ? 'color:' + o.kc : 'opacity:.7') + '">' + o.k + '</div>' +
+    '<div style="font-size:clamp(21px,3vw,26px);font-weight:900;line-height:1.15">' + esc(nameAr(o.manager)) + '</div>' +
+    '<div class="tpairs"><div class="tpair">' +
+      '<span class="nm out">' + esc(pout) + '</span>' +
+      '<span class="p" style="background:rgba(' + (o.fg ? '56,0,60' : '255,255,255') + ',.12);opacity:.75">' + o.ptsOut + '</span>' +
+      '<span class="arw">←</span>' +
+      '<span class="nm">' + esc(pin) + '</span>' +
+      '<span class="p" style="background:' + o.chip + ';color:' + o.chipFg + '">' + o.ptsIn + '</span>' +
+    '</div></div>' +
+    '<div class="num" style="font-size:44px;font-weight:700;line-height:1;margin-top:8px;direction:ltr;text-align:right' + (o.netColor ? ';color:' + o.netColor : '') + '">' + signed(o.net) + '</div>' +
+    '<div style="font-size:15px;font-weight:700;opacity:.7">محصلة التبديل' +
+      (hit ? ' (مع <span class="num" style="direction:ltr;display:inline-block">' + signed(-hit) + '</span>)' : '') + '</div></div>';
+}
+
+function tList(v) {
+  return String(v || '').split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+}
+
+function tObjs(arr, str) {
+  if (arr && arr.length) return arr.map(function (x) { return { name: x.name, points: x.points }; });
+  return tList(str).map(function (n) { return { name: n, points: null }; });
+}
+
+function tradeCard(o) {
+  if (!o.manager) return '';
+  var outs = tObjs(o.outArr, o.out), ins = tObjs(o['in' + 'Arr'], o['in']);
+  if (outs.length < 2 && ins.length < 2 && o.twinManager === o.manager && (+o.twinNet) === (+o.net)) return '';
+  var raw = (+o.ptsIn) - (+o.ptsOut);
+  var hit = raw - (+o.net);
+  var n = Math.max(outs.length, ins.length);
+  var pairs = '';
+  for (var i = 0; i < n; i++) {
+    var a = outs[i], b = ins[i];
+    pairs += '<div class="tpair">' +
+      '<span class="nm out">' + esc(a ? a.name : '—') + '</span>' +
+      '<span class="p" style="background:rgba(255,255,255,.1);opacity:.7">' + (a && a.points !== null ? a.points : '') + '</span>' +
+      '<span class="arw">←</span>' +
+      '<span class="nm">' + esc(b ? b.name : '—') + '</span>' +
+      '<span class="p" style="background:' + o.line + ';color:#38003C">' + (b && b.points !== null ? b.points : '') + '</span>' +
+      '</div>';
+  }
+  return '<div class="tcard" style="background:' + o.bg + ';border:2px solid ' + o.line + '">' +
+    '<div style="font-size:16px;font-weight:800;color:' + o.line + '">' + o.k + '</div>' +
+    '<div style="font-size:clamp(21px,3vw,26px);font-weight:900;line-height:1.15">' + esc(nameAr(o.manager)) + '</div>' +
+    '<div class="tpairs">' + pairs + '</div>' +
+    '<div class="num" style="font-size:44px;font-weight:700;line-height:1;margin-top:2px;direction:ltr;text-align:right;color:' + o.line + '">' + signed(o.net) + '</div>' +
+    '<div style="font-size:15px;font-weight:700;opacity:.7">المحصلة' +
+      (hit ? ' (مع <span class="num" style="direction:ltr;display:inline-block">' + signed(-hit) + '</span>)' : '') + '</div></div>';
+}
+
+function gwAwards(g) {
+  var h = gwHl(g);
+  var pair = function (a, b) {
+    var have = [a, b].filter(Boolean);
+    if (!have.length) return '';
+    return '<div class="pair' + (have.length === 1 ? ' solo' : '') + '">' + have.join('') + '</div>';
+  };
+  var crowdCard = function (k, player, pct, sub, bg) {
+    if (!player) return '';
+    return '<div style="background:' + bg + ';color:#38003C;padding:24px">' +
+      '<div style="font-size:16px;font-weight:800;opacity:.8">' + k + '</div>' +
+      '<div style="font-size:clamp(26px,4vw,34px);font-weight:900;direction:ltr;text-align:right">' + esc(player) + '</div>' +
+      '<div style="font-size:17px;font-weight:600;opacity:.85"><span class="num" style="font-weight:700">' + Math.round(pct) + '%</span> ' + sub + '</div></div>';
+  };
+  return '<div class="awards">' +
+    pair(
+      awardCard({ k: 'نجم الجولة', who: nameAr(h.top_scorer), big: h.top_score, sub: 'أعلى واحد بالدوري هالجولة', bg: '#00FF85', fg: '#38003C' }),
+      awardCard({ k: 'خيبة الجولة', who: nameAr(h.bottom_scorer), big: h.bottom_score, sub: 'الله يعوّض عليه', bg: '#E90052' })) +
+    pair(
+      awardCard({ k: 'الكابتن الذهبي', who: capWho(g, h.best_captain_player, h.best_captain_manager), big: h.best_captain_points, sub: capSub(g, h.best_captain_player, h.best_captain_manager), bg: '#04F5FF', fg: '#38003C' }),
+      awardCard({ k: 'الكابتن المنحوس', who: capWho(g, h.worst_captain_player, h.worst_captain_manager), big: h.worst_captain_points, sub: (capCount(g, h.worst_captain_player) > 1 ? '<span class="num" style="font-weight:800">' + capCount(g, h.worst_captain_player) + '</span> ' + mgrWord(capCount(g, h.worst_captain_player)) + ' عطوه الكبتنة 💀' : 'عطاه الكبتنة <bdi><b style="font-weight:800">' + nameAr(h.worst_captain_manager) + '</b></bdi> 💀'), bg: '#2A002E', kc: '#FF5C9E' })) +
+    pair(
+      awardCard({ k: 'صاروخ الجولة', who: nameAr(h.biggest_riser), big: h.riser_places_gained ? '▲' + h.riser_places_gained : undefined, sub: 'مركز طلعهم فوق', bg: '#00FF85', fg: '#38003C' }),
+      awardCard({ k: 'سقوط حر', who: nameAr(h.biggest_faller), big: h.faller_places_lost ? '▼' + h.faller_places_lost : undefined, sub: 'مركز راحوا عليه', bg: '#E90052' })) +
+    pair(
+      moveCard({ k: 'ضربة معلم — أقوى صفقة فردية', manager: h.one_move_master_manager, pOut: h.one_move_master_player_out, pIn: h.one_move_master_player_in, ptsOut: h.one_move_master_points_out, ptsIn: h.one_move_master_points_in, net: h.one_move_master_net_impact, bg: '#00FF85', fg: '#38003C', chip: '#38003C', chipFg: '#00FF85' }),
+      moveCard({ k: 'أسوأ صفقة — تبديل واحد', manager: h.one_move_disaster_manager, pOut: h.one_move_disaster_player_out, pIn: h.one_move_disaster_player_in, ptsOut: h.one_move_disaster_points_out, ptsIn: h.one_move_disaster_points_in, net: h.one_move_disaster_net_impact, bg: '#2A002E', border: '#FF5C9E', kc: '#FF5C9E', chip: '#FF5C9E', chipFg: '#38003C', netColor: '#FF5C9E' })) +
+    pair(
+      tradeCard({ k: 'أذكى صفقات الجولة — كل التبديلات', manager: h.sharpest_trader_manager, out: h.sharpest_trader_players_out, in: h.sharpest_trader_players_in, outArr: h.sharpest_trader_out, inArr: h.sharpest_trader_in, ptsOut: h.sharpest_trader_points_out, ptsIn: h.sharpest_trader_points_in, net: h.sharpest_trader_net_impact, twinManager: h.one_move_master_manager, twinNet: h.one_move_master_net_impact, bg: '#38003C', line: '#04F5FF' }),
+      tradeCard({ k: 'لخبطة التبديلات — غيّر وندم', manager: h.transfer_tangle_manager, out: h.transfer_tangle_players_out, in: h.transfer_tangle_players_in, outArr: h.transfer_tangle_out, inArr: h.transfer_tangle_in, ptsOut: h.transfer_tangle_points_out, ptsIn: h.transfer_tangle_points_in, net: h.transfer_tangle_net_impact, twinManager: h.one_move_disaster_manager, twinNet: h.one_move_disaster_net_impact, bg: '#2A002E', line: '#FF5C9E' })) +
+    pair(
+      awardCard({ k: 'أغلى تشكيلة', who: h.value_king_value !== h.value_laggard_value ? nameAr(h.value_king_manager) : null, big: h.value_king_value, sub: 'مليون قيمة فريق — أعلى واحد بالدوري', bg: '#04F5FF', fg: '#38003C' }),
+      awardCard({ k: 'أرخص تشكيلة', who: h.value_king_value !== h.value_laggard_value ? nameAr(h.value_laggard_manager) : null, big: h.value_laggard_value, sub: 'مليون بس — يعيش على الرخيص', bg: '#46124F', border: '#FF7FB0', kc: '#FF7FB0' })) +
+    pair(
+      awardCard({ k: 'ملك الخصايص', who: nameAr(h.chip_master_manager), big: h.chip_master_score, sub: 'لعب <bdi><b style="font-weight:800">' + (CHIP_AR[h.chip_master_chip] || h.chip_master_chip || '') + '</b></bdi> وطلع بأعلى نتيجة', bg: '#38003C', border: '#04F5FF', kc: '#04F5FF' }),
+      awardCard({ k: 'محارب بلا خاصية', who: nameAr(h.no_chip_warrior_manager), big: h.no_chip_warrior_score, sub: 'أعلى نتيجة بدون أي خاصية', bg: '#46124F', border: '#00FF85', kc: '#00FF85' })) +
+    pair(
+      crowdCard('كابتن الشعب', h.most_captained_player, h.most_captained_pct, 'من الدوري عطوه الكبتنة', 'linear-gradient(120deg,#04F5FF 0%,#00A8B5 100%)'),
+      crowdCard('لاعب ما يغيب عن أي فريق', h.most_owned_player, h.most_owned_pct, 'من الفرق فيها هذا اللاعب', 'linear-gradient(120deg,#00FF85 0%,#00C463 100%)')) +
+    pair(
+      awardCard({ k: 'مقبرة الدكة', who: nameAr(h.most_wasted_bench_manager), big: h.wasted_bench_points, sub: 'نقطة قاعدة على الدكة تتفرج', bg: '#7A0B4A', kc: '#FF7FB0' }),
+      '') +
+    '</div>';
+}
+
+var gwSort = 'total', gwCur = null;
+
+function teamLink(g, r) {
+  var url = r[15] || (r[14] ? 'https://fantasy.premierleague.com/entry/' + r[14] + '/event/' + g : null);
+  if (!url) return '';
+  return '<a class="gw-lnk" href="' + esc(url) + '" target="_blank" rel="noopener">شوف الفريق ↗</a>';
+}
+
+function noSeasonBlock(pad) {
+  return '<section class="pad"><div class="wrap">' +
+    '<div style="background:#46124F;border:2px solid #04F5FF;padding:clamp(26px,4vw,40px);display:flex;flex-direction:column;gap:10px">' +
+    '<div style="font-size:17px;font-weight:800;color:#04F5FF">الموسم الحالي</div>' +
+    '<h2 style="margin:0;font-size:clamp(28px,4.4vw,42px);font-weight:900;line-height:1.1">الموسم ما بدأ بعد</h2>' +
+    '<p style="margin:0;font-size:clamp(17px,2.2vw,21px);font-weight:500;line-height:1.5;opacity:.8;text-wrap:pretty">أول ما تنزل أول جولة بتلقى هني ملخصها: الجوائز، الترتيب، الخصايص، والتبديلات. لي الحين شوف الأرشيف.</p>' +
+    '<div><button class="btn" data-go="archive" style="margin-top:6px">ادخل الأرشيف ←</button></div>' +
+    '</div></div></section>';
+}
+
+function gwView(g) {
+  if (!GWS.length) return noSeasonBlock();
+  g = g || LAST_GW;
+  gwCur = g;
+  var rows = gwRows(g);
+  var pop = (GW_POP[g] || []).slice(0, 10);
+  var picker = GWS.slice().reverse().map(function (x) {
+    return '<button class="btn' + (x === g ? ' on' : '') + '" data-gw="' + x + '" style="' + (x === g ? 'background:#00FF85;color:#38003C' : '') + '">GW' + x + '</button>';
+  }).join('');
+  if (gwSort === 'gw') rows = rows.slice().sort(function (a, b) { return b[3] - a[3]; });
+  var table = rows.map(function (r, i) {
+    var pos = gwSort === 'gw' ? i + 1 : r[12];
+    var a = accent(pos);
+    var ch = r[13];
+    var mv = ch === null || ch === 0 ? '<span style="color:rgba(255,255,255,.35)">—</span>'
+      : ch > 0 ? '<span style="color:#00FF85">▲' + ch + '</span>' : '<span style="color:#FF5C9E">▼' + Math.abs(ch) + '</span>';
+    return '<div class="trow" style="border-right-color:' + a + '">' +
+      '<div class="c-rank" style="color:' + a + '">' + pos + '</div>' +
+      '<div class="c-name"><b>' + esc(nameAr(r[1])) + '</b><span><bdi>' + esc(r[2]) + '</bdi>' + (r[9] ? ' · <bdi>' + (CHIP_AR[r[9]] || r[9]) + '</bdi>' : '') + teamLink(g, r) + '</span></div>' +
+      '<div class="c-pts"' + (gwSort === 'gw' ? ' style="color:#00FF85"' : '') + '>' + r[3] + '</div>' +
+      '<div class="c-sub"' + (gwSort === 'total' ? ' style="color:#00FF85;font-weight:700"' : '') + '>' + fmt(r[4]) + '</div>' +
+      '<div class="c-sub gw-mv" style="flex:0 0 54px;font-weight:700">' + mv + '</div></div>';
+  }).join('');
+  var sortBar = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">' +
+    '<span style="font-size:15px;font-weight:700;color:rgba(255,255,255,.5);align-self:center">رتّب حسب</span>' +
+    '<button class="btn" data-sort="total" style="' + (gwSort === 'total' ? 'background:#00FF85;color:#38003C' : '') + '">إجمالي النقاط</button>' +
+    '<button class="btn" data-sort="gw" style="' + (gwSort === 'gw' ? 'background:#00FF85;color:#38003C' : '') + '">نقاط الجولة</button></div>';
+  var popList = pop.map(function (p) {
+    return '<div style="display:flex;align-items:center;gap:10px;background:#46124F;padding:10px 14px">' +
+      '<div style="flex:1;min-width:0;font-size:18px;font-weight:800;direction:ltr;text-align:right">' + esc(p[0]) + '</div>' +
+      '<div class="num" style="flex:0 0 62px;font-size:19px;font-weight:700;color:#00FF85">' + Math.round(p[1]) + '%</div></div>';
+  }).join('');
+  return '<section class="pad"><div class="wrap">' +
+    '<div style="border-bottom:5px solid #00FF85;padding-bottom:16px;margin-bottom:20px">' +
+    '<div style="font-size:18px;font-weight:700;color:#00FF85">ملخص الجولة</div>' +
+    '<h2 class="num" style="margin:4px 0 0;font-size:clamp(44px,9vw,82px);font-weight:700;line-height:.95;direction:ltr;text-align:right">GW' + g + '</h2>' + liveNote(g) + '</div>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px">' + picker + '</div>' +
+    '<div class="hd" style="border-bottom-color:#E90052"><h2 class="sec">جوائز الجولة</h2><div class="s" style="color:#E90052">منو لمع ومنو احترق</div></div>' +
+    '<div style="margin-bottom:36px">' + gwAwards(g) + '</div>' +
+    '<div class="hd" style="border-bottom-color:#04F5FF"><h2 class="sec">ترتيب الجولة</h2><div class="s" style="color:#04F5FF">اضغط «شوف الفريق» تشوف تشكيلته في موقع الفانتازي</div></div>' +
+    sortBar +
+    '<div class="thead"><div style="flex:0 0 40px">#</div><div style="flex:1 1 120px">المشترك</div><div style="flex:0 0 84px">الجولة</div><div style="flex:0 0 92px">المجموع</div><div class="gw-mv" style="flex:0 0 54px">حركة</div></div>' +
+    '<div class="rows" style="margin-bottom:36px">' + table + '</div>' +
+    (popList ? '<div class="hd" style="border-bottom-color:#00FF85"><h2 class="sec">لاعبين الكل شاريهم</h2><div class="s" style="color:#00FF85">نسبة ملكيتهم داخل الدوري</div></div>' +
+      '<div class="rows">' + popList + '</div>' : '') +
+    '</div></section>';
+}
+
+var app = document.getElementById('app');
+var label = function (s) { return s.slice(2, 4) + '/' + s.slice(5); };
+var fmt = function (n) { return n.toLocaleString('en-US'); };
+var accent = function (p) { return p === 1 ? '#FFD166' : p === 2 ? '#D6E0EB' : p === 3 ? '#E09468' : 'rgba(255,255,255,0.14)'; };
+var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
+
+var seasons = [], mgrs = {}, allTime = [], bestSeason = null, champCount = 0;
+var SEASON_HISTORY = null, HIST = 'rows', SMETA = {}, IMPROVED = null, SINGLE = false;
+
+function slabel(x) { return String(x).slice(2); }
+function seasonSpan() {
+  if (!seasons.length) return '';
+  return seasons.length === 1 ? 'موسم ' + slabel(seasons[0]) : 'من موسم ' + slabel(seasons[0]) + ' إلى ' + slabel(seasons[seasons.length - 1]);
+}
+
+function buildHistory() {
+  seasons = []; mgrs = {}; allTime = []; bestSeason = null; SMETA = {}; IMPROVED = null;
+  if (!ROWS.length && SEASON_HISTORY) { HIST = 'career'; buildCareer(); SINGLE = seasons.length === 1; return; }
+  HIST = 'rows';
+  buildRows();
+  SINGLE = seasons.length === 1;
+}
+
+function buildCareer() {
+  var sh = SEASON_HISTORY;
+  var side = function (o) { return o ? { en: o.manager_name, ar: AR[o.manager_name] || o.manager_name, team: o.team_name, pts: o.points } : null; };
+  (sh.past_seasons || []).forEach(function (p) {
+    seasons.push(p.season);
+    SMETA[p.season] = { n: p.num_managers, champion: side(p.champion), runner: side(p.runner_up), third: side(p.third_place), spoon: side(p.wooden_spoon) };
+  });
+  seasons.sort();
+
+  var spoonOf = {}, titleOf = {}, secondOf = {}, thirdOf = {};
+  seasons.forEach(function (ss) {
+    var t = SMETA[ss];
+    if (t.spoon) (spoonOf[t.spoon.en] = spoonOf[t.spoon.en] || []).push(ss);
+    if (t.champion) (titleOf[t.champion.en] = titleOf[t.champion.en] || []).push(ss);
+    if (t.runner) (secondOf[t.runner.en] = secondOf[t.runner.en] || []).push(ss);
+    if (t.third) (thirdOf[t.third.en] = thirdOf[t.third.en] || []).push(ss);
+  });
+  var teamOf = {};
+  seasons.forEach(function (ss) {
+    ['champion', 'runner', 'third', 'spoon'].forEach(function (k) {
+      var v = SMETA[ss][k]; if (v && v.team) teamOf[v.en] = v.team;
+    });
+  });
+
+  (sh.hall_of_fame || []).forEach(function (f) {
+    var en = f.manager_name;
+    var m = mgrs[en] = {
+      en: en, ar: AR[en] || en, team: teamOf[en] || '', rows: [],
+      total: f.career_total_points, count: f.seasons_played,
+      titleSeasons: titleOf[en] || [], titles: f.titles,
+      secondSeasons: secondOf[en] || [], seconds: f.runner_up_finishes,
+      thirdSeasons: thirdOf[en] || [], thirds: (thirdOf[en] || []).length,
+      podiums: f.top_3_finishes,
+      lastSeasons: spoonOf[en] || [], lasts: (spoonOf[en] || []).length,
+      best: f.best_finish, bestSeason: f.best_finish_season,
+      avgPts: f.average_points, avg: null, bestRank: null
+    };
+    m.display = m.ar;
+    allTime.push(m);
+  });
+  var arSets = {};
+  allTime.forEach(function (m) { (arSets[m.ar] = arSets[m.ar] || []).push(m); });
+  allTime.forEach(function (m) { if (arSets[m.ar].length > 1 && m.team) m.display = m.ar + ' — ' + m.team; });
+
+  var hi = sh.highest_single_season_score;
+  if (hi) bestSeason = { en: hi.manager_name, season: hi.season, pts: hi.points, rank: null };
+  IMPROVED = sh.most_improved_season || null;
+
+  allTime.sort(function (a, b) { return b.total - a.total; });
+  allTime.forEach(function (m, i) { m.allRank = i + 1; });
+  champCount = allTime.filter(function (m) { return m.titles > 0; }).length;
+}
+
+function buildRows() {
+  var seen = {};
+  ROWS.forEach(function (r) { if (!seen[r[0]]) { seen[r[0]] = 1; seasons.push(r[0]); } });
+  seasons.sort();
+  ROWS.forEach(function (r) {
+    var m = mgrs[r[2]] || (mgrs[r[2]] = { en: r[2], ar: AR[r[2]] || r[2], team: r[3], rows: [] });
+    m.team = r[3];
+    m.rows.push({ season: r[0], pos: r[1], pts: r[4], rank: r[5] });
+    if (!bestSeason || r[4] > bestSeason.pts) bestSeason = { en: r[2], season: r[0], pts: r[4], rank: r[5] };
+  });
+
+  var lastOf = {};
+  seasons.forEach(function (ss) {
+    var rows = ROWS.filter(function (r) { return r[0] === ss; });
+    if (!rows.length) return;
+    var mx = Math.max.apply(null, rows.map(function (r) { return r[1]; }));
+    rows.forEach(function (r) { if (r[1] === mx) (lastOf[r[2]] = lastOf[r[2]] || []).push(ss); });
+  });
+
+  var arSets = {};
+  Object.keys(mgrs).forEach(function (k) { (arSets[mgrs[k].ar] = arSets[mgrs[k].ar] || []).push(k); });
+  Object.keys(mgrs).forEach(function (k) {
+    var m = mgrs[k];
+    var at = function (p) { return m.rows.filter(function (r) { return r.pos === p; }); };
+    m.total = m.rows.reduce(function (a, r) { return a + r.pts; }, 0);
+    m.count = m.rows.length;
+    m.titleSeasons = at(1).map(function (r) { return r.season; });
+    m.titles = m.titleSeasons.length;
+    m.seconds = at(2).length;
+    m.thirds = at(3).length;
+    m.podiums = m.rows.filter(function (r) { return r.pos <= 3; }).length;
+    m.lastSeasons = lastOf[k] || [];
+    m.lasts = m.lastSeasons.length;
+    m.best = Math.min.apply(null, m.rows.map(function (r) { return r.pos; }));
+    m.avg = (m.rows.reduce(function (a, r) { return a + r.pos; }, 0) / m.count).toFixed(2);
+    m.bestRank = Math.min.apply(null, m.rows.map(function (r) { return r.rank; }));
+    m.display = arSets[m.ar].length > 1 ? m.ar + ' — ' + m.team : m.ar;
+    allTime.push(m);
+  });
+  allTime.sort(function (a, b) { return b.total - a.total; });
+  allTime.forEach(function (m, i) { m.allRank = i + 1; });
+  champCount = allTime.filter(function (m) { return m.titles > 0; }).length;
+  seasons.forEach(function (ss) {
+    var list = seasonRows(ss);
+    if (!list.length) return;
+    var pick = function (x) { return x ? { en: x.m.en, ar: x.m.ar, team: x.m.team, pts: x.r.pts } : null; };
+    SMETA[ss] = { n: list.length, champion: pick(list[0]), runner: pick(list[1]), third: pick(list[2]), spoon: pick(list[list.length - 1]) };
+  });
+}
+
+function paintBrand() {
+  var nav = document.getElementById('brandNav'), ft = document.getElementById('brandFoot');
+  var pre = META.brand_pre || '', ac = META.brand_accent || (META.name || '');
+  if (nav) nav.innerHTML = (pre ? esc(pre) + ' ' : '') + '<span style="color:#00FF85">' + esc(ac) + '</span>';
+  if (ft) {
+    var yrs = seasons.length ? ' · ' + seasons[0].split('/')[0] + ' — ' + (seasons.length > 1 ? '20' + seasons[seasons.length - 1].split('/')[1] : '20' + seasons[0].split('/')[1]) : '';
+    ft.textContent = (META.name || '') + yrs;
+  }
+  if (META.name) document.title = META.name + ' — دوري فانتازي الأصدقاء';
+}
+
+function heroBlock() {
+  var w = String(META.brand_pre || '').split(' ').filter(Boolean).map(esc);
+  var last = w.pop() || '';
+  var ac = esc(META.brand_accent || META.name || '');
+  return '<h1 class="hero">' + (w.length ? w.join('<br>') + '<br>' : '') +
+    (last ? last + ' ' : '') + '<span style="color:#00FF85">' + ac + '</span></h1>';
+}
+function eyebrowBlock() {
+  var t = seasons.length === 1 ? 'أول موسم من الفانتازي' : seasons.length + ' موسم من الفانتازي';
+  return '<div class="eyebrow"><div class="dot"></div><div style="font-size:clamp(16px,2.2vw,22px);font-weight:700;color:#04F5FF">' + t + '</div><div></div></div>';
+}
+
+var seasonRows = function (s) {
+  return allTime.map(function (m) {
+    var r = null;
+    m.rows.forEach(function (x) { if (x.season === s) r = x; });
+    return r ? { m: m, r: r } : null;
+  }).filter(Boolean).sort(function (a, b) { return a.r.pos - b.r.pos; });
+};
+
+function topBy(fn, min) {
+  var best = -Infinity, win = [];
+  allTime.forEach(function (m) {
+    var v = fn(m);
+    if (v === null || v === undefined) return;
+    if (v > best) { best = v; win = [m]; }
+    else if (v === best) win.push(m);
+  });
+  if (best <= (min === undefined ? 0 : min) || !isFinite(best)) return null;
+  return { v: best, list: win };
+}
+
+function recCard(o) {
+  if (!o.top) return '';
+  var list = o.top.list, tie = list.length > 1;
+  var names = list.map(function (m) { return esc(m.ar); }).join(' · ');
+  var foot = tie ? (o.tieFoot || '') : (o.foot ? o.foot(list[0]) : '');
+  return '<div class="rec" style="' + o.style + '">' +
+    '<div class="k" style="' + (o.kStyle || 'opacity:.85') + '">' + o.k + (tie ? ' — تعادل بين ' + list.length : '') + '</div>' +
+    (o.sub ? '<div style="font-size:15px;font-weight:500;opacity:.55;margin:-6px 0 12px">' + o.sub + '</div>' : '') +
+    '<div class="row"><span class="who"' + (tie ? ' style="font-size:20px;line-height:1.4"' : '') + '>' + names + '</span>' +
+      '<span class="big"' + (tie ? ' style="font-size:48px"' : '') + '>' + o.top.v + '</span></div>' +
+    (foot ? '<div style="font-size:18px;font-weight:700;opacity:.8">' + foot + '</div>' : '') + '</div>';
+}
+
+function seasonsFoot(field) {
+  return function (m) {
+    return '<span class="num" style="direction:ltr;display:inline-block">' + m[field].map(slabel).join(' · ') + '</span>';
+  };
+}
+
+function recordsSection() {
+  if (!allTime.length || SINGLE) return '';
+  var cards = [
+    recCard({ k: 'أكثر ألقاب', style: 'background:#E90052', top: topBy(function (m) { return m.titles; }), foot: seasonsFoot('titleSeasons'), tieFoot: 'كل واحد رفع الكأس نفس عدد المرات' }),
+    recCard({ k: 'أكثر مرات في المراكز الثلاثة الأولى', sub: 'أول أو ثاني أو ثالث — أكثر واحد صعد المنصة', style: 'background:#00FF85;color:#38003C', kStyle: 'opacity:.7', top: topBy(function (m) { return m.podiums; }, 1), foot: function () { return 'ساكن المنصة بالإيجار الطويل'; } }),
+    recCard({ k: 'أكثر مرات وصيف الدوري', style: 'background:#46124F;border:2px solid rgba(255,255,255,.18)', kStyle: 'color:#04F5FF', top: topBy(function (m) { return m.seconds; }, 1) }),
+    recCard({ k: 'أكثر مرات مركز ثالث', style: 'background:#46124F;border:2px solid rgba(255,255,255,.18)', kStyle: 'color:#04F5FF', top: topBy(function (m) { return m.thirds; }, 1) }),
+    bestSeason ? '<div class="rec" style="background:#04F5FF;color:#38003C"><div class="k" style="opacity:.7">' + (seasons.length > 1 ? 'أفضل موسم في التاريخ' : 'أعلى نقاط بالموسم') + '</div>' +
+      '<div class="row"><span class="who">' + esc(nameAr(bestSeason.en)) + '</span>' +
+      '<span style="display:flex;flex-direction:column;align-items:center"><span class="big" style="font-size:50px">' + bestSeason.pts + '</span>' +
+      '<span style="font-size:16px;font-weight:700;opacity:.75">نقطة</span></span></div>' +
+      '<div style="font-size:18px;font-weight:700;opacity:.8">موسم ' + slabel(bestSeason.season) + (bestSeason.rank ? ' — وترتيبه العالمي: <span class="num" style="font-weight:700">' + fmt(bestSeason.rank) + '</span>' : '') + '</div></div>' : '',
+    recCard({ k: 'فشيلة الدوري — أكثر واحد جا الأخير', sub: 'قاعد بذيل الجدول أكثر من أي أحد', style: 'background:#2A002E;border:2px dashed rgba(255,255,255,.35)', kStyle: 'color:#E90052', top: topBy(function (m) { return m.lasts; }, seasons.length > 1 ? 1 : 0), foot: seasonsFoot('lastSeasons'), tieFoot: 'كل واحد قعد بالذيل نفس عدد المرات' })
+  ].filter(Boolean);
+
+  if (IMPROVED) {
+    cards.push('<div class="rec" style="background:#04F5FF;color:#38003C"><div class="k" style="opacity:.7">أكبر قفزة بين موسمين</div>' +
+      '<div class="row"><span class="who">' + esc(nameAr(IMPROVED.manager_name)) + '</span>' +
+      '<span style="display:flex;flex-direction:column;align-items:center"><span class="big" style="font-size:50px">' + IMPROVED.places_gained + '</span>' +
+      '<span style="font-size:16px;font-weight:700;opacity:.75">مركز</span></span></div>' +
+      '<div style="font-size:18px;font-weight:700;opacity:.8">من المركز <span class="num" style="font-weight:700">' + IMPROVED.from_position + '</span> في ' + slabel(IMPROVED.from_season) +
+      ' إلى <span class="num" style="font-weight:700">' + IMPROVED.to_position + '</span> في ' + slabel(IMPROVED.to_season) + '</div></div>');
+  }
+
+  var cursed = null;
+  if (seasons.length > 2) {
+    allTime.forEach(function (m) {
+      if (m.titles || m.avg === null || m.count < Math.min(3, seasons.length)) return;
+      if (!cursed || +m.avg < +cursed.avg) cursed = m;
+    });
+  }
+  if (cursed) {
+    cards.push('<div style="grid-column:1/-1;background:linear-gradient(120deg,#E90052 0%,#7A0B4A 100%);padding:26px;display:flex;gap:20px;align-items:center;flex-wrap:wrap">' +
+      '<div style="font-size:62px;line-height:1">😅</div><div style="flex:1;min-width:240px">' +
+      '<h3 style="margin:0 0 8px;font-size:clamp(26px,4vw,34px);font-weight:900;line-height:1">المنحوس</h3>' +
+      '<p style="margin:0;font-size:clamp(17px,2.2vw,22px);font-weight:500;line-height:1.45">' + esc(cursed.ar) + ' يمتلك أفضل متوسط ترتيب بين كل اللي ما رفعوا الكأس — <span class="num" style="font-weight:700;background:#00FF85;color:#38003C;padding:0 8px">' + cursed.avg + '</span> على مدى ' + cursed.count + ' ' + seasonWord(cursed.count) + ' — ومع ذلك <span style="font-weight:900;color:#00FF85">ما رفع الكأس ولا مرة واحدة</span>.</p></div></div>');
+  }
+  if (!cards.length) return '';
+  return '<section class="pad"><div class="wrap"><div class="hd" style="border-bottom-color:#E90052"><h2 class="sec">أرقام ما تنسى</h2><div class="s" style="color:#E90052">من صنع التاريخ؟</div></div>' +
+    '<div class="recs">' + cards.join('') + '</div></div></section>';
+}
+
+function landingView() {
+  var g = LAST_GW, hl = gwHl(g), live = GWS.length > 0;
+  var champ = seasons.length ? seasonRows(seasons[seasons.length - 1])[0] : null;
+  var card = function (o) {
+    return '<div data-go="' + o.go + '" style="cursor:pointer;background:' + o.bg + ';color:' + o.fg + ';padding:clamp(26px,4vw,40px);display:flex;flex-direction:column;gap:14px;min-height:clamp(300px,42vw,400px);border-top:8px solid ' + o.bar + '">' +
+      '<div style="font-size:17px;font-weight:800;opacity:.7">' + o.eyebrow + '</div>' +
+      '<h2 style="margin:0;font-size:clamp(34px,5.4vw,54px);font-weight:900;line-height:1">' + o.title + '</h2>' +
+      '<p style="margin:0;font-size:clamp(17px,2.2vw,21px);font-weight:500;line-height:1.5;opacity:.85;text-wrap:pretty">' + o.body + '</p>' +
+      '<div style="margin-top:auto;display:flex;gap:10px;flex-wrap:wrap">' + o.chips + '</div>' +
+      '<div style="font-size:19px;font-weight:900;opacity:.9">' + o.cta + ' ←</div></div>';
+  };
+  var chip = function (n, l, dark) {
+    return '<div style="background:' + (dark ? 'rgba(0,0,0,.14)' : 'rgba(255,255,255,.12)') + ';padding:10px 14px;min-width:96px;display:flex;flex-direction:column;justify-content:center">' +
+      '<div style="font-size:' + (String(n).length > 6 ? 'clamp(19px,2.4vw,23px)' : '28px') + ';font-weight:' + (String(n).length > 6 ? '900' : '700') + ';line-height:1.15;font-family:' + (String(n).length > 6 ? 'inherit' : 'Oswald,sans-serif') + '">' + n + '</div>' +
+      '<div style="font-size:14px;font-weight:700;opacity:.75;margin-top:2px">' + l + '</div></div>';
+  };
+  return '<div style="background:linear-gradient(165deg,#4A1259 0%,#38003C 70%);padding:clamp(40px,7vw,80px) 0 clamp(30px,5vw,50px)"><div class="wrap">' +
+    eyebrowBlock() + heroBlock() +
+    '<p class="lede" style="margin-bottom:0">وين تبي تروح؟ تابع الموسم الجاري جولة بجولة، أو نبش بالأرشيف وشوف منو صنع التاريخ.</p>' +
+    '</div></div>' +
+    '<section class="pad"><div class="wrap">' +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px">' +
+    card({ go: 'gw', bg: '#00FF85', fg: '#38003C', bar: '#38003C', eyebrow: live ? 'مباشر اللحين' : 'قريباً', title: 'الموسم الحالي', cta: live ? 'ادخل ملخص الجولات' : 'شوف التفاصيل',
+      body: live ? 'ملخص كل جولة: جوائز، ترتيب، خصايص، ومنو كابتنه ضيّعه. آخر تحديث بعد الجولة ' + g + '.'
+                 : 'الموسم ما بدأ بعد — أول ما تنزل أول جولة بتلقى هني الجوائز والترتيب والتبديلات.',
+      chips: live ? chip('GW' + g, 'آخر جولة', 1) + chip(hl.top_score, 'أعلى نقاط', 1) + chip(esc(nameAr(hl.top_scorer)), 'نجم الجولة', 1) : '' }) +
+    card({ go: 'archive', bg: '#46124F', fg: '#fff', bar: '#E90052', eyebrow: seasonSpan(), title: 'أرشيف المواسم', cta: 'ادخل الأرشيف',
+      body: 'كل الأبطال، الترتيب التاريخي، أرقام ما تنسى، وملف كامل لكل مشترك — ومقارنة وجه لوجه.',
+      chips: chip(seasons.length, 'موسم') + chip(allTime.length, 'مشترك') + (champ ? chip(esc(champ.m.ar), 'آخر بطل') : '') }) +
+    '</div></div></section>';
+}
+
+function gwBand() {
+  var g = LAST_GW, h = gwHl(g), rows = gwRows(g).slice(0, 3);
+  var top = rows.map(function (r) {
+    var a = accent(r[12]);
+    return '<div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.06);padding:10px 14px;border-right:5px solid ' + a + '">' +
+      '<div class="num" style="flex:0 0 26px;font-size:22px;font-weight:700;color:' + a + '">' + r[12] + '</div>' +
+      '<div style="flex:1;min-width:0;font-size:19px;font-weight:800">' + esc(nameAr(r[1])) + '</div>' +
+      '<div class="num" style="font-size:22px;font-weight:700;color:#00FF85">' + r[3] + '</div></div>';
+  }).join('');
+  return '<section class="pad"><div class="wrap">' +
+    '<div style="background:#2A002E;border-top:5px solid #00FF85;padding:clamp(22px,4vw,34px)">' +
+    '<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:20px">' +
+    '<div><div style="font-size:17px;font-weight:800;color:#00FF85">آخر جولة في الموسم الحالي</div>' +
+    '<h2 class="num" style="margin:2px 0 0;font-size:clamp(40px,8vw,68px);font-weight:700;line-height:.95;direction:ltr;text-align:right">GW' + g + '</h2>' + liveNote(g) + '</div>' +
+    '<button class="btn" data-go="gw" style="background:#00FF85;color:#38003C">كل تفاصيل الجولة ←</button></div>' +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px">' +
+    '<div style="background:#00FF85;color:#38003C;padding:18px"><div style="font-size:16px;font-weight:800;opacity:.75">نجم الجولة</div>' +
+    '<div style="font-size:clamp(22px,3vw,28px);font-weight:900;line-height:1.15">' + esc(nameAr(h.top_scorer)) + '</div>' +
+    '<div class="num" style="font-size:42px;font-weight:700;line-height:1">' + h.top_score + '</div></div>' +
+    '<div style="background:#E90052;padding:18px"><div style="font-size:16px;font-weight:800;opacity:.8">خيبة الجولة</div>' +
+    '<div style="font-size:clamp(22px,3vw,28px);font-weight:900;line-height:1.15">' + esc(nameAr(h.bottom_scorer)) + '</div>' +
+    '<div class="num" style="font-size:42px;font-weight:700;line-height:1">' + h.bottom_score + '</div></div>' +
+    '<div style="display:flex;flex-direction:column;gap:6px">' + top + '</div>' +
+    '</div></div></div></section>';
+}
+
+function homeView() {
+  var champs = seasons.map(function (s) {
+    var c = (SMETA[s] || {}).champion;
+    if (!c) return '';
+    return '<div class="champ" data-season="' + s + '">' +
+      '<div class="num" style="flex:0 0 74px;font-size:26px;font-weight:700;color:#04F5FF;direction:ltr;text-align:right">' + label(s) + '</div>' +
+      '<div style="flex:1 1 140px;min-width:0"><div style="font-size:22px;font-weight:800;line-height:1.2">' + esc(c.ar) + '</div>' +
+      '<div style="font-size:16px;font-weight:500;color:rgba(255,255,255,.6)">' + esc(c.team) + '</div></div>' +
+      '<div class="num" style="flex:0 0 66px;font-size:26px;font-weight:700">' + c.pts + '</div></div>';
+  }).join('');
+
+  var table = allTime.map(function (m) {
+    var a = accent(m.allRank);
+    return '<div class="trow" data-mgr="' + esc(m.en) + '" style="border-right-color:' + a + '">' +
+      '<div class="c-rank" style="color:' + a + '">' + m.allRank + '</div>' +
+      '<div class="c-name"><b>' + esc(m.display) + '</b><span>' + esc(m.team) + '</span></div>' +
+      '<div class="c-pts">' + fmt(m.total) + '</div>' +
+      (SINGLE ? '' : '<div class="c-sub">' + m.count + '</div>') + '</div>';
+  }).join('');
+
+  var one = SINGLE ? seasons[0] : null;
+  var gap = SINGLE && allTime.length > 1 ? allTime[0].total - allTime[allTime.length - 1].total : null;
+
+  return '<div style="background:linear-gradient(165deg,#4A1259 0%,#38003C 70%);padding:clamp(40px,7vw,84px) 0 clamp(36px,6vw,64px)"><div class="wrap">' +
+    eyebrowBlock() + heroBlock() +
+    '<p class="lede">' + (SINGLE
+      ? 'موسم ' + label(one) + ' كامل — البطل، المنصة، والترتيب من الأول للأخير. اضغط أي مشترك وشوف أرقامه.'
+      : 'كل الأبطال، وكل الأرقام، وكل الخيبات — ' + seasonSpan() + '. اضغط على أي موسم أو أي مشترك وشوف تاريخه كامل.') + '</p>' +
+    '<div class="stats">' +
+      (SINGLE
+        ? '<div class="stat" style="background:#E90052"><div class="n num">' + label(one) + '</div><div class="l">الموسم</div></div>' +
+          '<div class="stat" style="background:#00FF85;color:#38003C"><div class="n">' + allTime.length + '</div><div class="l">مشترك</div></div>' +
+          '<div class="stat" style="background:#04F5FF;color:#38003C"><div class="n">' + (bestSeason ? bestSeason.pts : '—') + '</div><div class="l">نقاط البطل</div></div>' +
+          (gap !== null ? '<div class="stat" style="background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.3)"><div class="n">' + fmt(gap) + '</div><div class="l">الفارق بين الأول والأخير</div></div>' : '')
+        : '<div class="stat" style="background:#E90052"><div class="n">' + seasons.length + '</div><div class="l">موسم</div></div>' +
+          '<div class="stat" style="background:#00FF85;color:#38003C"><div class="n">' + allTime.length + '</div><div class="l">مشترك</div></div>' +
+          '<div class="stat" style="background:#04F5FF;color:#38003C"><div class="n">' + champCount + '</div><div class="l">' + (champCount === 1 ? 'بطل' : 'أبطال مختلفين') + '</div></div>' +
+          '<div class="stat" style="background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.3)"><div class="n">' + (bestSeason ? bestSeason.pts : '—') + '</div><div class="l">أعلى نقاط بموسم</div></div>') +
+    '</div></div></div>' +
+
+    (SINGLE
+      ? '<section class="pad"><div class="wrap"><div class="hd"><h2 class="sec">منصة الموسم</h2><div class="s">اضغط أي واحد لملفه</div></div>' +
+        podiumBlock(one) + '</div></section>'
+      : '<section class="pad"><div class="wrap"><div class="hd"><h2 class="sec">لوحة الأبطال</h2><div class="s">اضغط الموسم لترتيب الدوري كامل</div></div>' +
+        '<div class="cards">' + champs + '</div></div></section>') +
+
+    recordsSection() +
+
+    '<section class="pad"><div class="wrap"><div class="hd" style="border-bottom-color:#04F5FF;margin-bottom:8px"><h2 class="sec">' + (SINGLE ? 'ترتيب الموسم' : 'الترتيب التاريخي') + '</h2><div class="s" style="color:#04F5FF">اضغط أي مشترك ' + (SINGLE ? 'لأرقامه' : 'لتاريخه الكامل') + '</div></div>' +
+    (SINGLE ? '' : '<p style="margin:0 0 18px;font-size:17px;font-weight:500;color:rgba(255,255,255,.6)">مجموع نقاط كل مشترك في كل المواسم اللي شارك فيها — مو ترتيب الموسم الأخير.</p>') +
+    '<div class="thead"><div style="flex:0 0 40px">#</div><div style="flex:1 1 120px">المشترك</div><div style="flex:0 0 84px">النقاط</div>' +
+    (SINGLE ? '' : '<div style="flex:0 0 92px">مواسم</div>') + '</div>' +
+    '<div class="rows">' + table + '</div></div></section>';
+}
+
+function seasonsView() {
+  if (SINGLE) return homeView();
+  var cards = seasons.map(function (s) {
+    var t = SMETA[s] || {};
+    if (!t.champion) return '';
+    return '<div class="scard" data-season="' + s + '"><div class="num" style="font-size:34px;font-weight:700;color:#04F5FF;direction:ltr;text-align:right">' + label(s) + '</div>' +
+      '<div style="font-size:15px;font-weight:700;color:rgba(255,255,255,.5);margin-top:8px">البطل</div>' +
+      '<div style="font-size:20px;font-weight:800">' + esc(t.champion.ar) + '</div>' +
+      '<div style="font-size:15px;font-weight:500;color:rgba(255,255,255,.55)">' + t.n + ' مشترك</div></div>';
+  }).join('');
+  return '<section class="pad"><div class="wrap"><h2 class="sec">كل المواسم</h2>' +
+    '<p style="margin:8px 0 24px;font-size:18px;font-weight:500;color:rgba(255,255,255,.6)">اختر موسم لترتيبه الكامل.</p>' +
+    '<div class="grid-cards">' + cards + '</div></div></section>';
+}
+
+function managersView() {
+  var cards = allTime.map(function (m) {
+    return '<div class="mcard" data-mgr="' + esc(m.en) + '" style="border-right-color:' + accent(m.allRank) + '">' +
+      '<div style="font-size:21px;font-weight:900">' + esc(m.display) + '</div>' +
+      '<div style="font-size:15px;font-weight:500;color:rgba(255,255,255,.55);margin-bottom:10px">' + esc(m.team) + '</div>' +
+      '<div style="display:flex;gap:14px;align-items:baseline"><span class="num" style="font-size:22px;font-weight:700;color:#00FF85">' + fmt(m.total) + '</span>' +
+      (SINGLE ? '<span style="font-size:15px;font-weight:700;color:rgba(255,255,255,.5)">المركز <span class="num">' + m.best + '</span></span>'
+        : '<span style="font-size:15px;font-weight:700;color:rgba(255,255,255,.5)">' + (m.count === 1 ? 'موسم واحد' : m.count + ' ' + seasonWord(m.count)) + '</span>') + '</div></div>';
+  }).join('');
+  return '<section class="pad"><div class="wrap"><h2 class="sec">كل المشتركين</h2>' +
+    '<p style="margin:8px 0 24px;font-size:18px;font-weight:500;color:rgba(255,255,255,.6)">اضغط أي واحد لسجله في كل المواسم.</p>' +
+    '<div class="grid-cards">' + cards + '</div></div></section>';
+}
+
+function podiumBlock(s) {
+  var t = SMETA[s] || {};
+  var slot = function (o, pos, k, bg, fg) {
+    if (!o) return '';
+    return '<div data-mgr="' + esc(o.en) + '" style="cursor:pointer;background:' + bg + ';' + (fg ? 'color:' + fg + ';' : '') + 'padding:22px;display:flex;flex-direction:column;gap:4px">' +
+      '<div style="font-size:15px;font-weight:800;opacity:.7">' + k + '</div>' +
+      '<div class="num" style="font-size:34px;font-weight:700;line-height:1">' + pos + '</div>' +
+      '<div style="font-size:clamp(20px,3vw,26px);font-weight:900;line-height:1.15;margin-top:4px">' + esc(o.ar) + '</div>' +
+      '<div style="font-size:15px;font-weight:500;opacity:.7">' + esc(o.team || '') + '</div>' +
+      '<div class="num" style="font-size:26px;font-weight:700;margin-top:6px">' + o.pts + '</div></div>';
+  };
+  var shown = [t.champion, t.runner, t.third].filter(Boolean);
+  var spoonExtra = t.spoon && shown.every(function (o) { return o.en !== t.spoon.en; });
+  var covered = shown.length + (spoonExtra ? 1 : 0);
+  return '<div class="cards" style="margin-bottom:18px">' +
+    slot(t.champion, 1, 'البطل', '#FFD166', '#38003C') +
+    slot(t.runner, 2, 'الوصيف', '#D6E0EB', '#38003C') +
+    slot(t.third, 3, 'المركز الثالث', '#E09468', '#38003C') +
+    (spoonExtra ? slot(t.spoon, t.n || '', 'الأخير', '#2A002E') : '') +
+    '</div>' +
+    (t.n && t.n > covered ? '<p style="margin:0;font-size:16px;font-weight:600;color:rgba(255,255,255,.5);text-wrap:pretty">الترتيب الكامل لهذا الموسم غير متوفر في البيانات — بس المنصة وصاحب المركز الأخير.</p>' : '');
+}
+
+function seasonView(s) {
+  var i = seasons.indexOf(s);
+  var rows = seasonRows(s).map(function (x) {
+    var a = accent(x.r.pos);
+    return '<div class="trow" data-mgr="' + esc(x.m.en) + '" style="border-right-color:' + a + '">' +
+      '<div class="c-rank" style="color:' + a + '">' + x.r.pos + '</div>' +
+      '<div class="c-name"><b>' + esc(x.m.display) + '</b><span>' + esc(x.m.team) + '</span></div>' +
+      '<div class="c-pts">' + x.r.pts + '</div><div class="c-sub">' + fmt(x.r.rank) + '</div></div>';
+  }).join('');
+  return '<section class="pad"><div class="wrap"><div class="back" data-go="archive">← رجوع</div>' +
+    '<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:5px solid #00FF85;padding-bottom:16px;margin-bottom:22px">' +
+    '<div><div style="font-size:18px;font-weight:700;color:#00FF85">ترتيب الموسم</div>' +
+    '<h2 class="num" style="margin:4px 0 0;font-size:clamp(44px,9vw,82px);font-weight:700;line-height:.95;direction:ltr;text-align:right">' + label(s) + '</h2></div>' +
+    '<div style="display:flex;gap:8px">' +
+    (i > 0 ? '<button class="btn" data-season="' + seasons[i - 1] + '">الموسم السابق</button>' : '') +
+    (i < seasons.length - 1 ? '<button class="btn" data-season="' + seasons[i + 1] + '">الموسم التالي</button>' : '') +
+    '</div></div>' +
+    (rows ? '<div class="thead"><div style="flex:0 0 40px">#</div><div style="flex:1 1 120px">المشترك</div><div style="flex:0 0 84px">النقاط</div><div style="flex:0 0 92px">عالمياً</div></div>' +
+      '<div class="rows">' + rows + '</div>' : podiumBlock(s)) +
+    '</div></section>';
+}
+
+function seasonTagsBlock(m) {
+  if (SINGLE) return '';
+  var tag = function (list, k, bg, fg) {
+    if (!list || !list.length) return '';
+    return '<div style="background:' + bg + ';' + (fg ? 'color:' + fg + ';' : '') + 'padding:16px 18px">' +
+      '<div style="font-size:15px;font-weight:800;opacity:.75;margin-bottom:8px">' + k + '</div>' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap">' + list.slice().reverse().map(function (x) {
+        return '<span class="num" data-season="' + x + '" style="cursor:pointer;background:rgba(' + (fg ? '56,0,60' : '255,255,255') + ',.16);padding:3px 9px;font-size:16px;font-weight:700">' + label(x) + '</span>';
+      }).join('') + '</div></div>';
+  };
+  var blocks = tag(m.titleSeasons, 'مواسم الألقاب', '#FFD166', '#38003C') +
+    tag(m.secondSeasons, 'مواسم الوصافة', '#D6E0EB', '#38003C') +
+    tag(m.thirdSeasons, 'مواسم المركز الثالث', '#E09468', '#38003C') +
+    tag(m.lastSeasons, 'مواسم المركز الأخير', '#7A0B4A');
+  return (blocks ? '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-bottom:16px">' + blocks + '</div>' : '') +
+    '<p style="margin:0;font-size:16px;font-weight:600;color:rgba(255,255,255,.5);text-wrap:pretty">السجل موسم بموسم غير متوفر في البيانات — الأرقام فوق مجموع مسيرته.</p>';
+}
+
+function managerView(en) {
+  var m = mgrs[en];
+  if (!m) return landingView();
+  var tile = function (n, l, c) { return '<div class="tile"><div class="n"' + (c ? ' style="color:' + c + '"' : '') + '>' + n + '</div><div class="l">' + l + '</div></div>'; };
+  var rows = m.rows.map(function (r) {
+    var a = accent(r.pos);
+    return '<div class="trow trow-m" data-season="' + r.season + '" style="border-right-color:' + a + '">' +
+      '<div class="num" style="flex:0 0 68px;font-size:21px;font-weight:700;color:#04F5FF;direction:ltr;text-align:right">' + label(r.season) + '</div>' +
+      '<div class="num" style="flex:0 0 44px;font-size:24px;font-weight:700;color:' + a + '">' + r.pos + '</div>' +
+      '<div class="num" style="flex:1 1 80px;min-width:0;font-size:21px;font-weight:600">' + r.pts + '</div>' +
+      '<div class="c-sub">' + fmt(r.rank) + '</div></div>';
+  }).join('');
+  return '<section class="pad"><div class="wrap"><div class="back" data-go="archive">← رجوع</div>' +
+    '<div style="border-bottom:5px solid #E90052;padding-bottom:18px;margin-bottom:22px">' +
+    '<div style="font-size:18px;font-weight:700;color:#E90052">ملف المشترك</div>' +
+    '<h2 style="margin:6px 0 4px;font-size:clamp(32px,6vw,58px);font-weight:900;line-height:1.05">' + esc(m.ar) + '</h2>' +
+    '<div style="font-size:20px;font-weight:500;color:rgba(255,255,255,.6)">' + esc(m.team) + '</div></div>' +
+    '<div class="tiles">' +
+      (SINGLE ? '' :
+        '<div class="tile" style="background:#E90052;border:0"><div class="n">' + m.titles + '</div><div class="l">' + titleWord(m.titles) + '</div></div>' +
+        '<div class="tile" style="background:#00FF85;color:#38003C;border:0"><div class="n">' + m.podiums + '</div><div class="l">' + timesWord(m.podiums) + ' بالمراكز الثلاثة الأولى</div></div>') +
+      (SINGLE ? '' : tile(m.count, seasonWord(m.count))) + tile(fmt(m.total), 'مجموع النقاط') +
+      (m.avg !== null ? tile(m.avg, 'متوسط الترتيب', '#04F5FF')
+        : SINGLE ? '' : tile(fmt(Math.round(m.avgPts || 0)), 'متوسط نقاط الموسم', '#04F5FF')) +
+      (m.bestRank !== null ? tile(fmt(m.bestRank), 'أفضل ترتيب عالمي', '#04F5FF')
+        : tile(m.best, SINGLE ? 'مركزه بالموسم' : 'أفضل مركز', '#04F5FF')) +
+      (!SINGLE && m.seconds ? tile(m.seconds, 'مرات وصيف') : '') +
+      (!SINGLE && m.lasts ? tile(m.lasts, timesWord(m.lasts) + ' بالمركز الأخير', '#FF5C9E') : '') +
+    '</div>' +
+    (rows ? '<div class="thead thead-m" style="border-bottom-color:#04F5FF"><div style="flex:0 0 68px">الموسم</div><div style="flex:0 0 44px">المركز</div><div style="flex:1 1 80px">النقاط</div><div style="flex:0 0 92px">عالمياً</div></div>' +
+      '<div class="rows">' + rows + '</div>'
+      : seasonTagsBlock(m)) +
+    '</div></section>';
+}
+
+var cmpA = null, cmpB = null;
+function compareView() {
+  var A = mgrs[cmpA || allTime[0].en], B = mgrs[cmpB || allTime[1].en];
+  cmpA = A.en; cmpB = B.en;
+  var opts = function (sel) {
+    return allTime.map(function (m) {
+      return '<option value="' + esc(m.en) + '"' + (m.en === sel ? ' selected' : '') + '>' + esc(m.display) + '</option>';
+    }).join('');
+  };
+  var shared = A.rows.filter(function (r) { return B.rows.some(function (x) { return x.season === r.season; }); });
+  var aw = 0, bw = 0;
+  shared.forEach(function (r) {
+    var o = null; B.rows.forEach(function (x) { if (x.season === r.season) o = x; });
+    if (r.pos < o.pos) aw++; else bw++;
+  });
+  var h2h = aw === bw ? 'تعادل ' + aw + ' — ' + bw + ' 😐'
+    : (aw > bw ? A.ar : B.ar) + ' متقدم ' + Math.max(aw, bw) + ' مقابل ' + Math.min(aw, bw);
+  var G = '#00FF85', P = '#FF5C9E', N = 'rgba(255,255,255,.75)';
+  var row = function (l, a, b, hi, fa, fb) {
+    var better = a === b ? 0 : (hi ? (a > b ? 1 : 2) : (a < b ? 1 : 2));
+    return '<div class="cmp-row"><div class="num" style="font-size:24px;font-weight:700;color:' + (better === 1 ? G : N) + '">' + (fa !== undefined ? fa : a) + '</div>' +
+      '<div style="font-size:15px;font-weight:700;color:rgba(255,255,255,.6)">' + l + '</div>' +
+      '<div class="num" style="font-size:24px;font-weight:700;text-align:left;color:' + (better === 2 ? P : N) + '">' + (fb !== undefined ? fb : b) + '</div></div>';
+  };
+  return '<section class="pad"><div class="wrap">' +
+    '<div class="hd" style="border-bottom-color:#04F5FF"><div class="s" style="color:#04F5FF">وجه لوجه</div><h2 class="sec" style="margin-top:6px">مقارنة بين مشتركين</h2></div>' +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:24px">' +
+    '<div><div style="font-size:15px;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:6px">المشترك الأول</div><select id="selA" style="border:2px solid #00FF85">' + opts(A.en) + '</select></div>' +
+    '<div><div style="font-size:15px;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:6px">المشترك الثاني</div><select id="selB" style="border:2px solid #E90052">' + opts(B.en) + '</select></div></div>' +
+    (A.rows.length && B.rows.length ? '<div style="background:linear-gradient(120deg,#E90052 0%,#7A0B4A 100%);padding:22px;margin-bottom:20px">' +
+      '<div style="font-size:16px;font-weight:700;opacity:.8;margin-bottom:6px">تقابلوا في ' + shared.length + ' ' + seasonWord(shared.length) + '</div>' +
+      '<div style="font-size:clamp(20px,3vw,28px);font-weight:900;line-height:1.35">' + esc(h2h) + '</div></div>' : '') +
+    '<div class="cmp-hd"><div style="font-size:18px;font-weight:900;color:#00FF85">' + esc(A.display) + '</div>' +
+    '<div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.5)">المقارنة</div>' +
+    '<div style="font-size:18px;font-weight:900;color:#FF5C9E;text-align:left">' + esc(B.display) + '</div></div>' +
+    '<div class="rows">' +
+      (SINGLE ? '' : row('ألقاب', A.titles, B.titles, true) +
+        row('مرات بالمراكز الثلاثة الأولى', A.podiums, B.podiums, true)) +
+      row('مجموع النقاط', A.total, B.total, true, fmt(A.total), fmt(B.total)) +
+      (SINGLE ? '' : row('مواسم', A.count, B.count, true)) +
+      (A.avg !== null ? row('متوسط الترتيب', +A.avg, +B.avg, false, A.avg, B.avg)
+        : row('متوسط نقاط الموسم', A.avgPts, B.avgPts, true, fmt(Math.round(A.avgPts || 0)), fmt(Math.round(B.avgPts || 0)))) +
+      row(SINGLE ? 'المركز' : 'أفضل مركز', A.best, B.best, false) +
+      (SINGLE ? '' : row('مرات وصيف', A.seconds, B.seconds, true)) +
+      (A.bestRank !== null ? row('أفضل ترتيب عالمي', A.bestRank, B.bestRank, false, fmt(A.bestRank), fmt(B.bestRank))
+        : SINGLE ? '' : row('مرات بالمركز الأخير', A.lasts, B.lasts, false)) +
+    '</div></div></section>';
+}
+
+function render() {
+  var h = location.hash.replace(/^#\/?/, '');
+  var parts = h.split('/');
+  var html, active = 'home';
+  if (parts[0] === 'season' && parts[1]) { html = seasonView(decodeURIComponent(parts[1])); }
+  else if (parts[0] === 'mgr' && parts[1]) { html = managerView(decodeURIComponent(parts[1])); }
+  else if (parts[0] === 'gw') { html = gwView(parts[1] ? +parts[1] : LAST_GW); active = 'gw'; }
+  else if (parts[0] === 'archive') { html = homeView(); active = 'archive'; }
+  else if (parts[0] === 'seasons') { html = seasonsView(); active = 'seasons'; }
+  else if (parts[0] === 'managers') { html = managersView(); active = 'managers'; }
+  else if (parts[0] === 'compare') { html = compareView(); active = 'compare'; }
+  else { html = landingView(); }
+  app.innerHTML = html;
+  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) {
+    t.className = 'tab' + (t.getAttribute('data-go') === active ? ' on' : '');
+  });
+  var sa = document.getElementById('selA'), sb = document.getElementById('selB');
+  if (sa) sa.onchange = function () { cmpA = sa.value; app.innerHTML = compareView(); bindSelects(); };
+  if (sb) sb.onchange = function () { cmpB = sb.value; app.innerHTML = compareView(); bindSelects(); };
+}
+function bindSelects() {
+  var sa = document.getElementById('selA'), sb = document.getElementById('selB');
+  if (sa) sa.onchange = function () { cmpA = sa.value; app.innerHTML = compareView(); bindSelects(); };
+  if (sb) sb.onchange = function () { cmpB = sb.value; app.innerHTML = compareView(); bindSelects(); };
+}
+
+document.addEventListener('click', function (e) {
+  var ctl = e.target.closest('[data-sort]');
+  if (ctl) {
+    gwSort = ctl.getAttribute('data-sort');
+    var y = window.scrollY;
+    app.innerHTML = gwView(gwCur || LAST_GW);
+    window.scrollTo(0, y);
+    return;
+  }
+  var el = e.target.closest('[data-gw],[data-season],[data-mgr],[data-go]');
+  if (!el) return;
+  if (el.hasAttribute('data-gw')) location.hash = '#/gw/' + el.getAttribute('data-gw');
+  else if (el.hasAttribute('data-season')) location.hash = '#/season/' + encodeURIComponent(el.getAttribute('data-season'));
+  else if (el.hasAttribute('data-mgr')) location.hash = '#/mgr/' + encodeURIComponent(el.getAttribute('data-mgr'));
+  else {
+    var g = el.getAttribute('data-go');
+    location.hash = g === 'home' ? '#/' : '#/' + g;
+  }
+  window.scrollTo(0, 0);
+});
+window.addEventListener('hashchange', function () { render(); window.scrollTo(0, 0); });
+
+var toNum = function (v) {
+  if (v === '' || v === null || v === undefined) return null;
+  if (typeof v === 'number') return v;
+  var n = Number(v);
+  return isNaN(n) ? v : n;
+};
+var toBool = function (v) { return v === true || v === 1 || v === 'True' || v === 'true' || v === '1'; };
+
+function paintUpdated() {
+  var el = document.getElementById('lastUpdated');
+  if (!el) return;
+  if (!GENERATED_AT) { el.textContent = ''; return; }
+  var d = new Date(GENERATED_AT);
+  if (isNaN(d)) { el.textContent = ''; return; }
+  el.innerHTML = 'آخر تحديث: <span class="num" style="direction:ltr;display:inline-block">' + esc(d.toLocaleString()) + '</span>';
+}
+
+function capCount(g, player) {
+  var n = 0;
+  GW_STATS.forEach(function (r) { if (r[0] === g && r[10] === player) n++; });
+  return n;
+}
+function capTail(g, player) {
+  var n = capCount(g, player);
+  if (n < 2) return '';
+  return ' — <span class="num" style="font-weight:800">' + n + '</span> مديرين حطّوا عليه الشارة';
+}
+function seasonWord(n) { return (n === 1 || n >= 11) ? 'موسم' : 'مواسم'; }
+function titleWord(n) { return n === 1 ? 'لقب' : n >= 11 ? 'لقب' : 'ألقاب'; }
+function timesWord(n) { return (n === 1 || n >= 11) ? 'مرة' : 'مرات'; }
+function mgrWord(n) { return n >= 11 ? 'مدير' : 'مديرين'; }
+function capWho(g, player, manager) {
+  if (!player) return nameAr(manager);
+  return player;
+}
+function capSub(g, player, manager) {
+  if (!player) return 'ضبطت معاه الكبتنة';
+  var n = capCount(g, player);
+  if (n > 1) return '<span class="num" style="font-weight:800">' + n + '</span> ' + mgrWord(n) + ' عطوه الكبتنة وضبطت';
+  return 'اختاره <bdi><b style="font-weight:800">' + nameAr(manager) + '</b></bdi> وضبطت';
+}
+
+function liveNote(g) {
+  if (LIVE_GW === null || LIVE_GW !== g) return '';
+  return '<div style="margin-top:10px;font-size:15px;font-weight:700;color:#04F5FF">جولة GW' + g + ' ليلحين شغّالة — الأرقام يمكن تتغيّر.</div>';
+}
+
+function ingest(d) {
+  GW_STATS = (d.manager_gameweek_stats || []).map(function (r) {
+    return [toNum(r.gameweek), r.manager_name, r.team_name, toNum(r.gw_points), toNum(r.cumulative_points),
+      toNum(r.bench_points) || 0, toNum(r.overall_rank), toNum(r.num_transfers) || 0, toNum(r.transfer_cost) || 0,
+      r.chip_played || null, r.captain_name || null, toNum(r.captain_multiplier), toNum(r.league_rank),
+      r.rank_change === null || r.rank_change === undefined || r.rank_change === '' ? null : toNum(r.rank_change),
+      toNum(r.entry_id), r.team_link || null, r.transferred_in || '', r.transferred_out || '',
+      toNum(r.transfer_points_in), toNum(r.transfer_points_out), toNum(r.net_transfer_impact)];
+  });
+  GW_HL = (d.gameweek_highlights || []).map(function (h) {
+    var o = {};
+    Object.keys(h).forEach(function (k) { o[k] = h[k] === '' ? null : h[k]; });
+    o.gameweek = toNum(o.gameweek);
+    return o;
+  });
+  GW_POP = {};
+  (d.player_gameweek_popularity || []).forEach(function (p) {
+    var g = toNum(p.gameweek);
+    if (!GW_POP[g]) GW_POP[g] = [];
+    GW_POP[g].push([p.player_name, toNum(p.pct_owned) || 0, toNum(p.pct_captained) || 0]);
+  });
+  Object.keys(GW_POP).forEach(function (g) { GW_POP[g].sort(function (a, b) { return b[1] - a[1]; }); });
+  SEASON_SUMMARY = d.season_summary || [];
+  SEASON_HISTORY = d.season_history || null;
+  GENERATED_AT = d.generated_at || null;
+  LIVE_GW = d.live_gw === undefined || d.live_gw === null || d.live_gw === '' ? null : toNum(d.live_gw);
+  computeGws();
+  paintUpdated();
+}
+
+var SLUG = (function () {
+  var m = /[?&]league=([\w-]+)/.exec(location.search);
+  if (m) return m[1];
+  var t = document.querySelector('meta[name="league-slug"]');
+  return (t && t.getAttribute('content')) || 'q8';
+})();
+var RES = window.__resources || {};
+var LEAGUE_URL = RES.leagueData || 'data/league.json';
+var DATA_URL = RES.fplData || 'data/fpl-data.json';
+var DATA_TRIES = RES.fplData ? [RES.fplData] : ['data/fpl-data.json', 'data/' + SLUG + '/fpl-data.json'];
+var LEAGUE_TRIES = RES.leagueData ? [RES.leagueData] : ['data/league.json', 'data/' + SLUG + '/league.json'];
+
+function loadJson(url) {
+  return fetch(url, { cache: 'no-store' }).then(function (r) {
+    if (!r.ok) throw new Error(url + ' → HTTP ' + r.status);
+    return r.json();
+  });
+}
+
+function loadFirst(urls, kind) {
+  var i = 0;
+  return (function next() {
+    if (i >= urls.length) throw new Error('no ' + kind + ' found in ' + urls.join(' , '));
+    var u = urls[i++];
+    return loadJson(u).then(function (j) {
+      if (kind === 'data') DATA_URL = u; else LEAGUE_URL = u;
+      return j;
+    }, function () { return next(); });
+  })();
+}
+
+function dataError(msg) {
+  app.insertAdjacentHTML('afterbegin', '<section class="pad"><div class="wrap"><div style="background:#E90052;padding:18px;font-size:17px;font-weight:800;line-height:1.5">' + msg + '</div></div></section>');
+}
+
+Promise.all([
+  loadFirst(LEAGUE_TRIES, 'league').then(function (l) {
+    META = l.meta || {};
+    AR = l.names || {};
+    ROWS = (l.history || []).map(function (h) { return [h.season, h.rank, h.manager_name, h.team_name, h.total_points, h.overall_rank]; });
+  }).catch(function (err) {
+    console.error(err);
+    return null;
+  }),
+  loadFirst(DATA_TRIES, 'data').then(ingest).catch(function (err) {
+    console.error(err);
+    computeGws();
+    return 'ما قدرنا نقرأ ملف البيانات <span style="direction:ltr;display:inline-block">data/fpl-data.json</span> — بيانات الجولات ما راح تظهر.';
+  })
+]).then(function (errs) {
+  buildHistory();
+  paintBrand();
+  render();
+  errs.filter(function (e) { return typeof e === 'string'; }).forEach(dataError);
+  if (!seasons.length) dataError('ما قدرنا نقرأ بيانات الأرشيف — لا <span style="direction:ltr;display:inline-block">data/league.json</span> ولا <span style="direction:ltr;display:inline-block">season_history</span> داخل ملف البيانات.');
+});
+</script>
+</body>
+</html>
