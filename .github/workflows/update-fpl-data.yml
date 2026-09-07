@@ -1,0 +1,31 @@
+name: Update FPL Recap Data
+
+on:
+  workflow_dispatch:  # run manually from the Actions tab whenever you want fresh data
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install pandas requests fire
+
+      - name: Run export script
+        # League ID 977659 - Dewan Alolayan's league. If this repo's
+        # export_fpl_data.py lives somewhere other than the repo root,
+        # adjust the path below to match.
+        run: python3 scripts/export_fpl_data.py --league_id=977659 --end_gw=0
+
+      - name: Commit updated data
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update FPL recap data"
+          file_pattern: data/fpl-data.json
