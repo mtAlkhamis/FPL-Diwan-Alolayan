@@ -6,6 +6,14 @@ on:
 permissions:
   contents: write  # needed so the commit step below can push data/fpl-data.json back to the repo
 
+concurrency:
+  # If this gets triggered twice close together (e.g. clicking "Run workflow"
+  # twice, or a second manual run before the first finishes), queue the
+  # second one instead of letting both race to push at the same time - that
+  # race is what caused the "non-fast-forward" push rejection.
+  group: update-fpl-data
+  cancel-in-progress: false
+
 jobs:
   update-data:
     runs-on: ubuntu-latest
@@ -23,8 +31,11 @@ jobs:
 
       - name: Run export script
         # League ID 977659 - Dewan Alolayan's league. Script lives in the
-        # scripts/ folder of this repo.
-        run: python3 scripts/export_fpl_data.py --league_id=977659 --end_gw=0
+        # scripts/ folder of this repo. season_history_earliest_season
+        # caps the past-seasons archive at this league's own first season
+        # (2025/26) so members' personal FPL history from before this
+        # league existed doesn't show up as if it were part of it.
+        run: python3 scripts/export_fpl_data.py --league_id=977659 --end_gw=0 --season_history_earliest_season=2025/26
 
       - name: Commit updated data
         uses: stefanzweifel/git-auto-commit-action@v5
