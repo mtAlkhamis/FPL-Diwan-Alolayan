@@ -3,6 +3,9 @@ name: Update FPL Recap Data
 on:
   workflow_dispatch:  # run manually from the Actions tab whenever you want fresh data
 
+permissions:
+  contents: write  # needed so the commit step below can push data/fpl-data.json back to the repo
+
 jobs:
   update-data:
     runs-on: ubuntu-latest
@@ -19,9 +22,8 @@ jobs:
         run: pip install pandas requests fire
 
       - name: Run export script
-        # League ID 977659 - Dewan Alolayan's league. If this repo's
-        # export_fpl_data.py lives somewhere other than the repo root,
-        # adjust the path below to match.
+        # League ID 977659 - Dewan Alolayan's league. Script lives in the
+        # scripts/ folder of this repo.
         run: python3 scripts/export_fpl_data.py --league_id=977659 --end_gw=0
 
       - name: Commit updated data
