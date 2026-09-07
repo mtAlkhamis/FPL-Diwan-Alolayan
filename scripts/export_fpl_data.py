@@ -1,5 +1,3 @@
-
-Export fpl data · PY
 """
 FPL Weekly Recap - GitHub Actions data export
 -----------------------------------------------
@@ -7,36 +5,36 @@ Same data pulled by weekly_recap.py, but written as ONE combined JSON file
 instead of five CSVs, meant to be run by a GitHub Actions workflow and
 committed into the repo so a static site (e.g. GitHub Pages) can fetch it
 same-origin - no CORS issue, no manual re-upload each week.
- 
+
 If --end_gw is left at 0 (the default), it auto-detects which gameweek to
 pull: if one is currently IN PROGRESS (deadline passed, matches not all
 done), it includes that one and marks it "live_gw" in the output JSON (so
 viewers know bonus points etc. may still shift for that week). Otherwise
 it falls back to the latest fully FINISHED gameweek. Either way, no
 gameweek number needs to be tracked by hand.
- 
+
 The output also carries "generated_at" - a UTC timestamp of when this
 export ran - so the page can show "Last updated: ..." instead of
 claiming to be live (it isn't - it only refreshes when someone clicks
 the workflow button).
- 
+
 Usage (matches what the GitHub Actions workflow calls):
     python3 export_fpl_data.py --league_id=14514 --end_gw=0
     python3 export_fpl_data.py --league_id=14514 --end_gw=3   # force a specific gw
- 
+
 Output: data/fpl-data.json (path can be overridden with --output_path)
 """
- 
+
 import json
 import time
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
- 
+
 import pandas as pd
 import requests
- 
+
 FPL_URL = "https://fantasy.premierleague.com/api/"
 BOOTSTRAP_URL = FPL_URL + "bootstrap-static/"
 LEAGUE_CLASSIC_URL = FPL_URL + "leagues-classic/"
@@ -44,13 +42,13 @@ LIVE_URL = FPL_URL + "event/{gw}/live/"
 PICKS_URL = FPL_URL + "entry/{entry_id}/event/{gw}/picks/"
 TRANSFERS_URL = FPL_URL + "entry/{entry_id}/transfers/"
 HISTORY_URL = FPL_URL + "entry/{entry_id}/history/"
- 
+
 # Chips that let a manager swap most/all of their squad in a way that isn't
 # a normal, considered transfer decision - free hit is temporary (the squad
 # reverts automatically the following gameweek) and wildcard is a full
 # rebuild. Neither should be eligible for the transfer awards.
 SQUAD_OVERHAUL_CHIPS = {"wildcard", "freehit"}
- 
+
 # The FPL calls below (one per manager per gameweek for picks, one each per
 # manager for transfers/history) are independent, network-bound requests -
 # there's no reason to wait for one to finish before starting the next. This
@@ -58,7 +56,7 @@ SQUAD_OVERHAUL_CHIPS = {"wildcard", "freehit"}
 # runtime on a big league, low enough not to look like abuse to FPL's public
 # API (requests' default connection pool is also sized for 10).
 MAX_WORKERS = 10
- 
+
 # How many times to retry a single request before giving up on it, and the
 # base delay (seconds, multiplied by the attempt number) between retries.
 # FPL's public API occasionally drops a connection or returns a transient
@@ -66,8 +64,8 @@ MAX_WORKERS = 10
 # request no longer has to fail the entire export.
 REQUEST_RETRIES = 3
 REQUEST_RETRY_BACKOFF = 1.5
- 
- 
+
+
 def _get_json(session, url):
     """GET url and parse it as JSON, retrying on transient failures."""
     last_error = None
@@ -79,12 +77,12 @@ def _get_json(session, url):
             if attempt < REQUEST_RETRIES - 1:
                 time.sleep(REQUEST_RETRY_BACKOFF * (attempt + 1))
     raise last_error
- 
- 
+
+
 def get_bootstrap(session):
     return _get_json(session, BOOTSTRAP_URL)
- 
- 
+
+
 def get_player_info(bootstrap):
     position_names = {pt["id"]: pt["singular_name_short"] for pt in bootstrap["element_types"]}
     team_names = {team["id"]: team["short_name"] for team in bootstrap["teams"]}
@@ -96,19 +94,19 @@ def get_player_info(bootstrap):
         }
         for el in bootstrap["elements"]
     }
- 
- 
+
+
 def get_latest_finished_gw(bootstrap):
     """Highest gameweek number that FPL has marked as finished."""
     finished = [e["id"] for e in bootstrap["events"] if e.get("finished")]
     if not finished:
         raise RuntimeError("No finished gameweeks yet this season.")
     return max(finished)
- 
- 
+
+
 def resolve_end_gw(bootstrap):
     """Decide which gameweek to pull up to when --end_gw=0 (auto).
- 
+
     Returns (end_gw, is_live):
       - If a gameweek is currently in progress (deadline passed, matches
         not all finished yet), include it and report is_live=True - its
@@ -120,16 +118,16 @@ def resolve_end_gw(bootstrap):
     events = bootstrap["events"]
     finished = [e["id"] for e in events if e.get("finished")]
     latest_finished = max(finished) if finished else 0
- 
+
     current = next((e for e in events if e.get("is_current")), None)
     if current and not current.get("finished"):
         return current["id"], True
- 
+
     if not latest_finished:
         raise RuntimeError("No finished or in-progress gameweeks yet this season.")
     return latest_finished, False
- 
- 
+
+
 def get_league_entries(session, league_id):
     entries = []
     page = 1
@@ -153,17 +151,17 @@ def get_league_entries(session, league_id):
             break
         page += 1
     return entries
- 
- 
+
+
 def get_gw_live_points(session, gw):
     data = _get_json(session, LIVE_URL.format(gw=gw))
     return {el["id"]: el["stats"]["total_points"] for el in data["elements"]}
- 
- 
+
+
 def get_entry_gw_picks(session, entry_id, gw):
     return _get_json(session, PICKS_URL.format(entry_id=entry_id, gw=gw))
- 
- 
+
+
 def get_entry_transfers(session, entry_id):
     """Every transfer this entry has ever made, tagged with which gameweek
     ("event") it happened in. This is FPL's own transfer ledger - unlike
@@ -172,8 +170,8 @@ def get_entry_transfers(session, entry_id):
     week) as transfers, because it isn't one.
     """
     return _get_json(session, TRANSFERS_URL.format(entry_id=entry_id))
- 
- 
+
+
 def get_entry_history(session, entry_id):
     """This entry's full season history in one call - current[] has one row
     per gameweek with the authoritative event_transfers / event_transfers_cost
@@ -181,16 +179,16 @@ def get_entry_history(session, entry_id):
     entry_history has been seen to under-report the transfer count).
     """
     return _get_json(session, HISTORY_URL.format(entry_id=entry_id))
- 
- 
+
+
 FPL_ENTRY_URL = "https://fantasy.premierleague.com/entry/{entry_id}/event/{gw}"
- 
- 
+
+
 def build_manager_gameweek_rows(session, entries, start_gw, end_gw, player_info):
     rows, popularity_rows = [], []
     season_transfers = {}  # entry_id -> cumulative transfers made so far this season
     entry_ids = [entry["entry_id"] for entry in entries]
- 
+
     # Transfers and per-gameweek history are each fetched ONCE per manager
     # (both endpoints already return full-season data) rather than diffing
     # picks between consecutive gameweeks. A picks diff can't tell a real
@@ -220,7 +218,7 @@ def build_manager_gameweek_rows(session, entries, start_gw, end_gw, player_info)
     # archive with no separate manually-maintained file - see
     # build_hypothetical_history_df.
     past_seasons_by_entry = {}
- 
+
     def fetch_ledger(entry_id):
         by_gw = {}
         for t in get_entry_transfers(session, entry_id):
@@ -232,19 +230,19 @@ def build_manager_gameweek_rows(session, entries, start_gw, end_gw, player_info)
             {row["event"]: row for row in history.get("current", [])},
             history.get("past", []),
         )
- 
+
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         for entry_id, by_gw, history_by_gw, past_seasons in executor.map(fetch_ledger, entry_ids):
             transfers_by_entry_gw[entry_id] = by_gw
             history_by_entry_gw[entry_id] = history_by_gw
             past_seasons_by_entry[entry_id] = past_seasons
- 
+
         for gw in range(start_gw, end_gw + 1):
             gw_player_points = get_gw_live_points(session, gw)
             captain_counts = Counter()
             owned_counts = Counter()
             num_managers_this_gw = 0
- 
+
             # By far the biggest chunk of requests this script makes (one
             # per manager, every gameweek) - fetched concurrently, then
             # processed below in the same fixed order as before.
@@ -253,7 +251,7 @@ def build_manager_gameweek_rows(session, entries, start_gw, end_gw, player_info)
                 executor.map(lambda entry_id, _gw=gw: get_entry_gw_picks(session, entry_id, _gw), entry_ids),
             ))
             print(f"  gw{gw}: fetched picks for {len(entry_ids)} managers")
- 
+
             for entry in entries:
                 entry_id = entry["entry_id"]
                 data = picks_by_entry[entry_id]
@@ -261,7 +259,7 @@ def build_manager_gameweek_rows(session, entries, start_gw, end_gw, player_info)
                 if not picks_hist:
                     continue
                 num_managers_this_gw += 1
- 
+
                 # event_transfers / event_transfers_cost come from the season
                 # history endpoint, not the picks endpoint's own entry_history -
                 # the latter has been seen to under-report the transfer count on
@@ -270,14 +268,14 @@ def build_manager_gameweek_rows(session, entries, start_gw, end_gw, player_info)
                 gw_hist = history_by_entry_gw.get(entry_id, {}).get(gw, picks_hist)
                 num_transfers = gw_hist["event_transfers"]
                 transfer_cost = gw_hist["event_transfers_cost"]
- 
+
                 picks = data.get("picks", [])
                 squad_ids = {p["element"] for p in picks}
                 captain_pick = next((p for p in picks if p["is_captain"]), None)
                 captain_id = captain_pick["element"] if captain_pick else None
                 captain_multiplier = captain_pick["multiplier"] if captain_pick else 0
                 captain_raw_points = gw_player_points.get(captain_id, 0) if captain_id else 0
- 
+
                 # FPL's own "points" field on entry_history (picks endpoint) can lag
                 # behind the live per-player stats endpoint - especially right after
                 # a match finishes, while bonus points are still being finalized.
@@ -291,14 +289,14 @@ def build_manager_gameweek_rows(session, entries, start_gw, end_gw, player_info)
                     gw_player_points.get(p["element"], 0) for p in picks if p["multiplier"] == 0
                 )
                 points_delta = gw_points_computed - picks_hist["points"]
- 
+
                 season_transfers[entry_id] = season_transfers.get(entry_id, 0) + num_transfers
- 
+
                 for pid in squad_ids:
                     owned_counts[pid] += 1
                 if captain_id:
                     captain_counts[captain_id] += 1
- 
+
                 # Real transfers for this gameweek, straight from FPL's ledger -
                 # each record is one player out, one player in. Sorted by time
                 # so the in/out arrays pair up index-for-index as the same swap
@@ -310,7 +308,7 @@ def build_manager_gameweek_rows(session, entries, start_gw, end_gw, player_info)
                 )
                 transferred_in_ids = [t["element_in"] for t in gw_transfers]
                 transferred_out_ids = [t["element_out"] for t in gw_transfers]
- 
+
                 if len(gw_transfers) != num_transfers:
                     # Ledger and history disagree on the count - don't guess at
                     # which players were involved, just flag it and leave the
@@ -351,7 +349,7 @@ def build_manager_gameweek_rows(session, entries, start_gw, end_gw, player_info)
                         {"name": player_info.get(pid, {}).get("name", "Unknown"), "points": gw_player_points.get(pid, 0)}
                         for pid in transferred_out_ids
                     ]
- 
+
                 rows.append(
                     {
                         "gameweek": gw,
@@ -393,7 +391,7 @@ def build_manager_gameweek_rows(session, entries, start_gw, end_gw, player_info)
                         "team_link": FPL_ENTRY_URL.format(entry_id=entry_id, gw=gw),
                     }
                 )
- 
+
             for pid, owned_count in owned_counts.items():
                 popularity_rows.append(
                     {
@@ -410,10 +408,10 @@ def build_manager_gameweek_rows(session, entries, start_gw, end_gw, player_info)
                         else 0,
                     }
                 )
- 
+
     return rows, popularity_rows, past_seasons_by_entry
- 
- 
+
+
 def add_league_rank_and_movement(df):
     df = df.copy()
     df["league_rank"] = df.groupby("gameweek")["cumulative_points"].rank(
@@ -424,8 +422,8 @@ def add_league_rank_and_movement(df):
     df["rank_change"] = df["prev_rank"] - df["league_rank"]
     df = df.drop(columns=["prev_rank"])
     return df.sort_values(["gameweek", "league_rank"]).reset_index(drop=True)
- 
- 
+
+
 def build_gameweek_highlights(df, popularity_df):
     first_gw = df["gameweek"].min()
     highlight_rows = []
@@ -446,28 +444,28 @@ def build_gameweek_highlights(df, popularity_df):
             active_df = gw_df[gw_df["season_transfers_to_date"] > 0]
             if active_df.empty:  # everyone happens to be a ghost - don't blank the gw
                 active_df = gw_df
- 
+
         top = active_df.loc[active_df["gw_points"].idxmax()]
         bottom = active_df.loc[active_df["gw_points"].idxmin()]
- 
+
         movers = active_df.dropna(subset=["rank_change"])
         riser = movers.loc[movers["rank_change"].idxmax()] if not movers.empty else None
         faller = movers.loc[movers["rank_change"].idxmin()] if not movers.empty else None
- 
+
         best_cap = active_df.loc[active_df["captain_contribution"].idxmax()]
         worst_cap = active_df.loc[active_df["captain_contribution"].idxmin()]
         most_wasted = active_df.loc[active_df["bench_points"].idxmax()]
- 
+
         value_king = active_df.loc[active_df["team_value"].idxmax()]
         value_laggard = active_df.loc[active_df["team_value"].idxmin()]
- 
+
         chip_rows = active_df[active_df["chip_played"].notna()]
         chip_master = chip_rows.loc[chip_rows["gw_points"].idxmax()] if not chip_rows.empty else None
         no_chip_rows = active_df[active_df["chip_played"].isna()]
         no_chip_warrior = (
             no_chip_rows.loc[no_chip_rows["gw_points"].idxmax()] if not no_chip_rows.empty else None
         )
- 
+
         # On top of the season-long ghost exclusion above, only managers who
         # actually made a transfer THIS gameweek are eligible for the
         # transfer awards - an otherwise-active manager who simply didn't
@@ -485,7 +483,7 @@ def build_gameweek_highlights(df, popularity_df):
             transfer_tangle = transfer_rows.loc[transfer_rows["net_transfer_impact"].idxmin()]
         else:
             sharpest_trader = transfer_tangle = None
- 
+
         # "Best single transfer" / "worst single transfer" - the single best
         # (and worst) individual swap ANYWHERE in the league that gameweek,
         # not aggregated per manager. A manager who made several transfers
@@ -514,7 +512,7 @@ def build_gameweek_highlights(df, popularity_df):
                     best_swap = swap
                 if worst_swap is None or swap["net_impact"] < worst_swap["net_impact"]:
                     worst_swap = swap
- 
+
         # Sanity check the per-player detail behind sharpest_trader/
         # transfer_tangle before it goes anywhere near the JSON: array
         # lengths must match num_transfers, and the per-player points must
@@ -547,18 +545,18 @@ def build_gameweek_highlights(df, popularity_df):
                 f"{award_label} gw{gw} ({award_row['manager_name']}): per-player "
                 f"out-points don't sum to transfer_points_out"
             )
- 
+
         chips_this_gw = gw_df[gw_df["chip_played"].notna()][["manager_name", "chip_played"]].to_dict(
             "records"
         )
- 
+
         pop_gw = popularity_df[popularity_df["gameweek"] == gw]
         most_captained = pop_gw.loc[pop_gw["pct_captained"].idxmax()] if not pop_gw.empty else None
         most_owned = pop_gw.loc[pop_gw["pct_owned"].idxmax()] if not pop_gw.empty else None
- 
+
         def name_or_blank(row, col="manager_name"):
             return row[col] if row is not None else ""
- 
+
         highlight_rows.append(
             {
                 "gameweek": gw,
@@ -674,34 +672,34 @@ def build_gameweek_highlights(df, popularity_df):
             }
         )
     return pd.DataFrame(highlight_rows)
- 
- 
+
+
 def build_season_summary(df):
     latest_gw = df["gameweek"].max()
     latest = df[df["gameweek"] == latest_gw].set_index("entry_id")
- 
+
     summary = df.groupby(["entry_id", "manager_name", "team_name"]).agg(
         total_transfers=("num_transfers", "sum"),
         total_transfer_cost=("transfer_cost", "sum"),
         best_overall_rank=("overall_rank", "min"),
         gameweeks_tracked=("gameweek", "count"),
     ).reset_index()
- 
+
     summary["current_team_value"] = summary["entry_id"].map(latest["team_value"])
     summary["current_cumulative_points"] = summary["entry_id"].map(latest["cumulative_points"])
     summary["current_league_rank"] = summary["entry_id"].map(latest["league_rank"])
     return summary.sort_values("current_league_rank").reset_index(drop=True)
- 
- 
+
+
 def df_records(df):
     """Convert a DataFrame to plain JSON-safe records (NaN -> null)."""
     return json.loads(df.to_json(orient="records"))
- 
- 
+
+
 def build_hypothetical_history_df(entries, past_seasons_by_entry):
     """Reconstruct a "what if today's league had always existed" past-seasons
     table, straight from FPL's own API - no manually-maintained file needed.
- 
+
     FPL doesn't track who was actually IN a given mini-league for a season
     that's already rolled over - that's why the CSV-based path below
     exists. But it DOES track, for every individual manager, their own
@@ -717,7 +715,7 @@ def build_hypothetical_history_df(entries, past_seasons_by_entry):
     won't appear in ANY season here, even ones they actually won; and team
     names shown are each manager's CURRENT team name, since FPL doesn't
     retain what a team was called in a past season.
- 
+
     Returns an empty-shaped DataFrame (not None) when nobody has any past
     seasons on record - e.g. a brand-new league whose members are all new
     to FPL too - so build_season_history's "nothing completed yet" branch
@@ -739,10 +737,10 @@ def build_hypothetical_history_df(entries, past_seasons_by_entry):
                     "Overall Rank": season["rank"],
                 }
             )
- 
+
     if not rows:
         return pd.DataFrame(columns=["Season", "Pos", "Manager", "Team", "Total Points", "Overall Rank"])
- 
+
     df = pd.DataFrame(rows)
     # "Pos" here is OUR OWN ranking of today's members against each other
     # within each season - FPL doesn't provide one, since this grouping
@@ -751,8 +749,8 @@ def build_hypothetical_history_df(entries, past_seasons_by_entry):
         df.groupby("Season")["Total Points"].rank(ascending=False, method="min").astype(int)
     )
     return df
- 
- 
+
+
 def load_season_history(path):
     """Read a manually-maintained past-seasons file (columns: Season, Pos,
     Manager, Team, Total Points, Overall Rank), for callers who want the
@@ -762,7 +760,7 @@ def load_season_history(path):
     optional: main() only uses this when a season_history_path is
     explicitly given and the file exists; otherwise the hypothetical,
     API-only reconstruction is what actually ships.
- 
+
     Returns None if the file doesn't exist.
     """
     path = Path(path)
@@ -771,8 +769,8 @@ def load_season_history(path):
     df = pd.read_csv(path)
     df.columns = [c.strip() for c in df.columns]
     return df
- 
- 
+
+
 def build_season_history(history_df, exclude_current_season=True):
     """Turn a long-format past-seasons table (Season, Pos, Manager, Team,
     Total Points, Overall Rank - either the manually-maintained CSV via
@@ -780,7 +778,7 @@ def build_season_history(history_df, exclude_current_season=True):
     build_hypothetical_history_df) into an archive: a
     champion/runner-up/third/wooden-spoon card for each completed season, a
     career "hall of fame" per manager, and two all-time record cards.
- 
+
     exclude_current_season controls whether the most recent season present
     is treated as still in progress and dropped from every stat here.
     Needed for the manually-maintained CSV, which typically DOES include an
@@ -794,7 +792,7 @@ def build_season_history(history_df, exclude_current_season=True):
     """
     if history_df is None or history_df.empty:
         return None
- 
+
     df = history_df.copy()
     if exclude_current_season:
         current_season = df["Season"].max()  # "YYYY/YY" strings sort correctly
@@ -802,7 +800,7 @@ def build_season_history(history_df, exclude_current_season=True):
     else:
         current_season = None
         past_df = df
- 
+
     def _entry(row):
         if row is None:
             return None
@@ -811,7 +809,7 @@ def build_season_history(history_df, exclude_current_season=True):
             "team_name": row["Team"],
             "points": int(row["Total Points"]),
         }
- 
+
     past_seasons = []
     for season, season_df in past_df.groupby("Season"):
         season_df = season_df.sort_values("Pos")
@@ -819,7 +817,7 @@ def build_season_history(history_df, exclude_current_season=True):
         runner_up = season_df.iloc[1] if len(season_df) > 1 else None
         third_place = season_df.iloc[2] if len(season_df) > 2 else None
         wooden_spoon = season_df.iloc[-1]
- 
+
         past_seasons.append(
             {
                 "season": season,
@@ -833,7 +831,7 @@ def build_season_history(history_df, exclude_current_season=True):
     # Most recent completed season first - how a "past champions" list is
     # usually read.
     past_seasons.sort(key=lambda s: s["season"], reverse=True)
- 
+
     if past_df.empty:
         # A brand-new league (like a mini-league whose very first season is
         # still in progress) has nothing completed yet - an empty archive,
@@ -846,7 +844,7 @@ def build_season_history(history_df, exclude_current_season=True):
             "highest_single_season_score": None,
             "most_improved_season": None,
         }
- 
+
     # Hall of fame - one row per manager, career totals across every
     # completed season they appear in (not necessarily every season the
     # league has run, if they joined partway through).
@@ -869,7 +867,7 @@ def build_season_history(history_df, exclude_current_season=True):
     hall_of_fame.sort(
         key=lambda r: (-r["titles"], -r["top_3_finishes"], -r["career_total_points"])
     )
- 
+
     best_season_row = past_df.loc[past_df["Total Points"].idxmax()]
     highest_single_season_score = {
         "manager_name": best_season_row["Manager"],
@@ -877,7 +875,7 @@ def build_season_history(history_df, exclude_current_season=True):
         "season": best_season_row["Season"],
         "points": int(best_season_row["Total Points"]),
     }
- 
+
     # Biggest single-season jump in league position for one manager, between
     # the two seasons they most recently appear in back-to-back in THEIR
     # OWN history (not necessarily adjacent calendar seasons, if they sat a
@@ -900,7 +898,7 @@ def build_season_history(history_df, exclude_current_season=True):
                     "to_position": int(positions[i]),
                     "places_gained": int(jump),
                 }
- 
+
     return {
         "current_season": current_season,
         "seasons_completed": len(past_seasons),
@@ -909,8 +907,8 @@ def build_season_history(history_df, exclude_current_season=True):
         "highest_single_season_score": highest_single_season_score,
         "most_improved_season": most_improved_season,
     }
- 
- 
+
+
 def validate_transfer_consistency(df):
     """Final sanity pass before writing the JSON out - catches an entire bug
     class rather than relying on individual bad rows being noticed later.
@@ -918,7 +916,7 @@ def validate_transfer_consistency(df):
     block the whole weekly export from running.
     """
     issues = []
- 
+
     for _, row in df.iterrows():
         in_names = [n for n in row["transferred_in"].split(", ") if n]
         out_names = [n for n in row["transferred_out"].split(", ") if n]
@@ -931,7 +929,7 @@ def validate_transfer_consistency(df):
                 f"entry {row['entry_id']} ({row['manager_name']}) gw{row['gameweek']}: "
                 f"in={len(in_names)} out={len(out_names)} num_transfers={row['num_transfers']}"
             )
- 
+
     prev_by_entry = {}
     for _, row in df.sort_values(["entry_id", "gameweek"]).iterrows():
         entry_id = row["entry_id"]
@@ -942,7 +940,7 @@ def validate_transfer_consistency(df):
                 f"dropped from {prev} to {row['season_transfers_to_date']} at gw{row['gameweek']}"
             )
         prev_by_entry[entry_id] = row["season_transfers_to_date"]
- 
+
     if issues:
         print(f"Transfer consistency check found {len(issues)} issue(s):")
         for issue in issues:
@@ -950,8 +948,8 @@ def validate_transfer_consistency(df):
     else:
         print("Transfer consistency check passed - all rows agree.")
     return issues
- 
- 
+
+
 def main(
     league_id=14514,
     start_gw=1,
@@ -961,19 +959,19 @@ def main(
 ):
     started_at = time.perf_counter()
     session = requests.session()
- 
+
     print(f"Fetching player info and league '{league_id}' entries...")
     bootstrap = get_bootstrap(session)
     player_info = get_player_info(bootstrap)
     entries = get_league_entries(session, league_id)
     print(f"Found {len(entries)} managers in the league.")
- 
+
     is_live = False
     if not end_gw:
         end_gw, is_live = resolve_end_gw(bootstrap)
         status = "IN PROGRESS - numbers may still shift" if is_live else "finished"
         print(f"Auto-detected gameweek {end_gw} ({status})")
- 
+
     print(f"Pulling gameweeks {start_gw}-{end_gw} (this can take a minute)...")
     rows, popularity_rows, past_seasons_by_entry = build_manager_gameweek_rows(
         session, entries, start_gw, end_gw, player_info
@@ -989,7 +987,7 @@ def main(
     highlights_df = build_gameweek_highlights(df, popularity_df)
     season_df = build_season_summary(df)
     stats_df = df.drop(columns=["transfer_detail_in", "transfer_detail_out"])
- 
+
     # Past-seasons archive (champions, hall of fame, all-time records).
     # Default: reconstructed entirely from FPL's own API - today's members
     # ranked against each other by their own historical season totals, no
@@ -1005,7 +1003,7 @@ def main(
     else:
         season_history_df = build_hypothetical_history_df(entries, past_seasons_by_entry)
         season_history = build_season_history(season_history_df, exclude_current_season=False)
- 
+
     if season_history is None:
         print("No past-season history available - skipping season_history.")
     else:
@@ -1013,7 +1011,7 @@ def main(
             f"season_history: {season_history['seasons_completed']} completed "
             "season(s) covered."
         )
- 
+
     combined = {
         "league_id": league_id,
         "start_gw": start_gw,
@@ -1026,19 +1024,15 @@ def main(
         "season_summary": df_records(season_df),
         "season_history": season_history,
     }
- 
+
     out_path = Path(output_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w") as f:
         json.dump(combined, f, indent=2)
     print(f"Wrote {out_path} in {time.perf_counter() - started_at:.1f}s")
- 
- 
+
+
 if __name__ == "__main__":
     import fire
- 
+
     fire.Fire(main)
- 
-
-
-Couldn't save export_fpl_data.py.
